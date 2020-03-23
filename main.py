@@ -9,10 +9,26 @@ if __name__ == '__main__':
     Menu = {
         'T': 'Testspace',
         'M': 'MCTS',
-    }['M']
+    }['T']
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
+        env = Environment()
+        s = env.generate_initial_state()
+        env.game.display_board(s)
+        print(env.game.cell_neighbours[0,1])
+        actions = env.get_possible_actions_from_state(s)
+        print(actions)
+        for i in range(5):
+            print('****************')
+            player = ((i+1)%2, i%2)
+            values = input("Input some comma seprated numbers : ")
+            action = tuple(map(int,values.split(',')))
+            print('Player {} does action {}'.format(player, action))
+            s = env.generate_child_state_from_action(s, action, player)
+            env.draw_game(s)
+            did_win = env.check_game_done(s, player)
+            print(did_win)
 
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
@@ -59,5 +75,17 @@ if __name__ == '__main__':
 
         """
         TODO: 
-        - Comment code
+        - Create board + environment
+
+        Default policy = behaviour policy = target policy - neural net
+
+        Neural net:
+        - input is a board state, output is a probability distribution over all possble moves (from the input state)
+        - to create an intelligent target policy that can be used without MCTS
+
+        RL Procedure:
+        1. Making moves in the actual game, each game is an episode
+        2. Making moves in simulated game (search moves), each simulated game is a search game
+        3. Update target policy with supervised learning, training cases are from visit counts of arcs in the MC tree (updates happen
+            at the end of an actual game)
         """

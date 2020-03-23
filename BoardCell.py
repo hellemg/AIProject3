@@ -5,7 +5,7 @@ class BoardCell:
     def __init__(self, coordinates, neighbour_list):
         # Default boardcell has a filled value
         self.coordinates = coordinates
-        self.value = FILLED_VALUE
+        self.value = (0,0)
         self.neighbour_list = neighbour_list
 
     def __repr__(self):
@@ -25,9 +25,3 @@ class BoardCell:
     
     def get_neighbour_list(self):
         return self.neighbour_list
-
-    def get_owner(self):
-        if self.value == 'o':
-            return 'board'
-        elif self.value == '*':
-            return 'computer'

@@ -1,5 +1,7 @@
-
 import numpy as np
+
+# Hex game
+grid_size = 3
 
 # NOTE: Player 1 is max-player
 

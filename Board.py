@@ -2,217 +2,175 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from BoardCell import *
-
-FILLED_VALUE = '*'
-EMPTY_VALUE = 'o'
-
 
 class Board:
-    def __init__(self, board_type, grid_size, open_cells):
-        self.number_of_pieces = None
-        self.board_type = board_type
+    def __init__(self, grid_size):
         self.grid_size = grid_size
-        self.grid = np.empty((grid_size, grid_size), dtype=BoardCell)
-        self.initialize_board()
-        self.remove_pieces(open_cells)
-        self.last_moved_from_coords = (-1,-1)
-        self.last_moved_to_coords = (-1,-1)
+        # Array holding edge-representation of grid
+        self.cell_neighbours = np.empty((grid_size, grid_size), dtype=list)
+        for i in range(grid_size):
+            for j in range(grid_size):
+                self.cell_neighbours[i, j] = self.get_neighbour_list(i, j)
 
-    # TODO: Create only one Board-class, no subclasses
-    # TODO: Represent cell-value numerically, __str__-method to display stars and os
-
-    def get_last_moved_coords(self):
-        return self.last_moved_coords
-
-    def initialize_board(self):
-        for i in range(self.grid_size):  # row
-            for j in range(self.grid_size):  # column
-                # For triangle
-                if (self.board_type == 'D' or (self.grid_size - j) > i):
-                    self.grid[i, j] = BoardCell(
-                        (i, j), neighbour_list=self.get_neighbour_list(i, j))
-                else:
-                    self.grid[i, j] = -1
-        self.number_of_pieces = self.grid_size*self.grid_size
+    def get_initial_state(self):
+        # Values of each cell will be tuples
+        grid = np.empty((self.grid_size, self.grid_size), dtype=tuple)
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                grid[i, j] = (0, 0)
+        return grid
 
     def get_neighbour_list(self, row, column):
         neighbour_list = [None, None, None, None, None, None]
         # List of coordinates for the neighbours of cell [row, column]
         if (row > 0):
-            neighbour_list[0] = [row-1, column]
+            neighbour_list[0] = (row-1, column)
             if (column < self.grid_size - 1):
-                neighbour_list[1] = [row-1, column+1]
+                neighbour_list[1] = (row-1, column+1)
         if (column > 0):
-            neighbour_list[3] = [row, column-1]
+            neighbour_list[3] = (row, column-1)
         if (column < self.grid_size - 1):
-            neighbour_list[2] = [row, column+1]
+            neighbour_list[2] = (row, column+1)
         if (row < self.grid_size - 1):
-            neighbour_list[5] = [row+1, column]
+            neighbour_list[5] = (row+1, column)
             if (column > 0):
-                neighbour_list[4] = [row+1, column-1]
-        return np.array(neighbour_list)
-
-    def get_board_state(self):
-        """
-        :returns: string, state of board
-        """
-        state = ''
-        for i in range(self.grid_size):
-            for row_value in self.grid[i]:
-                if str(row_value) == '*':
-                    state += '1'
-                elif str(row_value) == 'o':
-                    state += '0'
-        return state
-
-    def get_number_of_pieces(self):
-        """
-        :returns: int - number of pieces on the board
-        """
-        num_pieces = 0
-        for row in self.grid:
-            row = row[row != -1]
-            for value in row:
-                if value.get_value() == '*':
-                    num_pieces += 1
-        return num_pieces
-
-    def get_game_status(self):
-        all_legal_moves = self.find_all_legal_moves()
-        num_legal_moves = len(all_legal_moves)
-        num_pieces_on_board = self.get_number_of_pieces()
-        if num_pieces_on_board == 1:
-            #print('YOU HAVE WON! :D')
-            return 'win'
-        elif num_legal_moves == 0:
-            #print('You lost :(')
-            return 'loose'
-        else:
-            # print('Pieces left on board:', num_pieces_on_board)
-            # print('-- number of legal moves:', num_legal_moves)
-            # print('-- legal moves:', all_legal_moves)
-            return 'play'
+                neighbour_list[4] = (row+1, column-1)
+        return neighbour_list
 
     def get_grid_size(self):
         return self.grid_size
 
-    def display_board(self):
+    def display_board(self, grid):
+        print('-------------------')
         for i in range(self.grid_size):
-            print(self.grid[i])#[self.grid[i] != -1])
+            for j in range(self.grid_size):
+                print(grid[i][j], end='')
+            print('\n')
 
-    def find_all_legal_moves(self):
+    def get_possible_actions_from_state(self, grid):
         """
-        :returns: list of all legal moves - tuples of (row, column, direction)
+        Finds all possible actions from a given state (empty boardcells)
+        grid: ndarray, grid in some state
+
+        :returns: list of tuples (row, column)
         """
-        all_legal_moves = []
-        for i in range(self.grid_size):
-            row = self.grid[i][self.grid[i] != -1]
-            legal_row = []
-            for j in range(len(row)):
-                legal_moves = self.get_legal_move_for_piece(i, j)
-                all_legal_moves += legal_moves
-        return all_legal_moves
+        possible_actions = []
+        rows, columns = grid.shape
+        for r in range(rows):
+            for c in range(columns):
+                if grid[r][c] == (0, 0):
+                    possible_actions.append((r, c))
+        return possible_actions
 
-    def get_legal_move_for_piece(self, row, column):
+    def get_state_from_state_action(self, grid, row, column, player, verbose):
         """
-
-        :returns: list of legal move for piece in position [row][column] - tuples of (row, column, direction)
+        grid: ndarray, grid in some state
+        row: int, row to place piece on
+        column: int, column to place piece on
+        player: tuple, (1,0) for p1, (0,1) for p2. Also is the new value
         """
-        # Assumes 'row' and 'column' have legal board-values
-        legal_moves = []
-        if self.grid[row, column].get_value() == EMPTY_VALUE:
-            return legal_moves
-        # Check all possible neighbours
-        for i in range(6):
-            neighbour_coords = self.grid[row, column].neighbour_list[i]
-            # Can only jump over non-empty neighbours
-            if neighbour_coords is not None:
-                neighbour = self.grid[neighbour_coords[0], neighbour_coords[1]]
-                # Triangle
-                if neighbour != -1:
-                    if neighbour.get_value() != EMPTY_VALUE:
-                        neighbours_neighbour_coords = self.grid[neighbour_coords[0],
-                                                        neighbour_coords[1]].neighbour_list[i]
-                        if neighbours_neighbour_coords is not None:
-                            if str(self.grid[neighbours_neighbour_coords[0], neighbours_neighbour_coords[1]]) == EMPTY_VALUE:
-                                # Legal to move in direction i
-                                legal_moves.append((row, column, i))
-        return legal_moves
+        print('welcome to state from sa')
+        temp_grid = grid.copy()
+        # Fill grid-cell with appropriate tuple
+        temp_grid[row][column] = player
+        if verbose:
+            print('Player {} places piece on ({},{})'.format(
+                player[1]+1, row, column))
+        return temp_grid
 
-    def make_jump(self, from_row, from_column, direction):
+    def check_game_done(self, grid, player):
         """
-        Jump peg on position (from_row, from_column) two steps in 'direction'
-        Remove piece between old position and new position
-
-        :type from_row: int
-        :param from_row: row of peg to be moved
-
-        :type from_column: int
-        :param from_column: column of peg to be moved
-
-        :type direction: int
-        :param direction: index in neighbour-list - represents direction in which to jump
+        grid: ndarray, grid in some state
+        player: tuple, (1,0) for p1, (0,1) for p2
         """
-        # Get coordinates for new position and overjumped cell
-        overjumped_row, overjumped_column = self.grid[from_row,
-                                                      from_column].neighbour_list[direction]
-        to_row, to_column = self.grid[overjumped_row,
-                                      overjumped_column].neighbour_list[direction]
-        # Move piece
-        self.grid[to_row, to_column].set_value(self.grid[from_row,
-                                                         from_column].get_value())
-        # Remove piece from old position
-        self.grid[from_row, from_column].set_value(EMPTY_VALUE)
-        # Remove overjumped piece
-        self.remove_pieces([[overjumped_row, overjumped_column]])
-        self.last_moved_from_coords = (from_row, from_column)
-        self.last_moved_to_coords = (to_row, to_column)
+        # P1: path across rows (northeast to southwest), P2 path spanning columns (northwest to southeast)
+        """
+        Strategies: 
+        1. check north (east or west, depending on player)
+        -- NE: (0, c), c is any column (top of matrix)
+        -- NW: (r, 0), r is any row (left of matrix)
+        2. find first value that corresponds to player
+        3. breadth-first search or similar to see if there is a path to the other side
+        4. GOAL: reach board-cell with coordinates south(west or east) 
+        -- SW: (grid_size-1, c), c is any column (bottom of matrix)
+        -- SE: (r, grid_size-1), r is any row (right of matrix)
+        """
+        # Start implementing for p1 to see how it goes
+        visited_cells = []
+        to_visit = []
+        for c in range(self.grid_size):
+            # Check for boardcells with (1,0)-value to initiate to_visit
+            if grid[0][c] == player:
+                # Should visit the boardcell
+                to_visit.append((0, c))
+        print(to_visit)
+        # Go through all to_visit-coordinates until none left
+        while to_visit:
+            current_coords = to_visit.pop()
+            print('current coords:', current_coords)
+            # Check if current_cell is on the other side (SW)
+            if current_coords[0] == self.grid_size-1:
+                return True
 
-    def remove_pieces(self, coordinates):
-        for [row, column] in coordinates:
-            # For Triangle board
-            if (self.grid[row, column] != -1):
-                if self.grid[row, column].get_value() != EMPTY_VALUE:
-                    self.grid[row, column].set_value(EMPTY_VALUE)
-                    self.number_of_pieces -= 1
+            neighbours = self.cell_neighbours[current_coords]
+            print('neighbours:', neighbours)
+            for n_coords in neighbours:
+                input()
+                # Dont go outside grid, dont go back to earlier visited cells
+                if (n_coords is not None) and (n_coords not in visited_cells):
+                    # Piece continuing the trail, add to to_visit
+                    print('...checking ', n_coords)
+                    if grid[n_coords] == player:
+                        print('...values is {}, adding {} to to_visit'.format(grid[n_coords], n_coords))
+                        to_visit.append(n_coords)
+            # Make sure not to go back to current cell
+            print('...adding current coords to visited cells', current_coords)
+            visited_cells.append(current_coords)
+        # Did not find a path
+        return False
 
-    def display_board_graph(self):
+    def display_board_graph(self, grid):
         # node network
         G = nx.Graph()
         node_colors = []
         # Add nodes to graph
         for r in range(self.grid_size):
             x = -r
+            y = -r
             for c in range(self.grid_size):
-                y = self.grid_size - r - c
                 pos = (x, y)
-                board_cell = self.grid[r, c]
-                if board_cell != -1:
-                    G.add_node(board_cell.get_coordinates(), pos=pos)
-                    # if board_cell.get_coordinates() == self.last_moved_from_coords:
-                    #     node_colors.append('black')
-                    if board_cell.get_coordinates() == self.last_moved_to_coords:
-                        node_colors.append('lightskyblue')
-                    elif board_cell.get_value() != FILLED_VALUE:
-                        node_colors.append('black')
-                    else:
-                        node_colors.append('lightblue')
-                    x += 1
+                board_cell = grid[r, c]
+                G.add_node((r, c), pos=pos)
+                if board_cell == (0, 0):
+                    node_colors.append('black')
+                elif board_cell == (1, 0):
+                    # Player 1
+                    node_colors.append('lightskyblue')
+                elif board_cell == (0, 1):
+                    # Player 2
+                    node_colors.append('magenta')
+                else:
+                    ValueError('Unknown value in boardcell ({},{}): {}'.format(
+                        x, y, board_cell))
+                x += 1
+                y -= 1
 
         # Add edges between neighbours
-        for r in self.grid:
-            for cell in r:
-                if cell != -1:
-                    for n in cell.get_neighbour_list():
-                        if n is not None:
-                            neighbour_cell = self.grid[n[0], n[1]]
-                            if neighbour_cell != -1:
-                                G.add_edge(cell.get_coordinates(),
-                                           neighbour_cell.get_coordinates())
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                for n in self.cell_neighbours[i, j]:
+                    if n is not None:
+                        # Add edge between current node and neighbour node
+                        G.add_edge((i, j), (n[0], n[1]))
 
         # Plot
         pos = nx.get_node_attributes(G, 'pos')
+
+        # TODO: Fix node size so it works with both grid_size = 3 and grid_size = 10
+
         nx.draw(G, pos, node_color=node_colors, node_size=3000,
                 with_labels=True, font_weight='bold')
-        #plt.show()
+
+        # TODO: Comment out plt.show() when animating
+
+        plt.show()
