@@ -9,7 +9,7 @@ if __name__ == '__main__':
     Menu = {
         'T': 'Testspace',
         'M': 'MCTS',
-    }['T']
+    }['M']
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
@@ -37,49 +37,45 @@ if __name__ == '__main__':
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
 
-        def get_player_number(p_num):
-            # Return randomly P1 or P2
-            if p_num == 3:
-                return np.random.randint(2)
-            # Defined p_num to be 0 for P1 and 1 for P2
-            else:
-                return p_num-1
-
-        def get_init(game_type):
-            if game_type == 'nim':
-                return N
-            elif game_type == 'ledge':
-                return B_init
-
         p1_wins = 0
         p1_start = 0
         for j in range(G):
-            env = Environment(game_type)
+            env = Environment()
             mcts = MCTS(env)
-            state = get_init(game_type)
-            player_number = get_player_number(P)
-            # Player number is 0 for P1 and 1 for P2
-            p1_start += ((player_number+1)%2)
+            states_in_game = []
+            state = env.generate_initial_state()
+            states_in_game.append(state)
+            player_number = P
+            # Player number is (1,0) for P1 and (0,1) for P2
+            p1_start += player_number[0]
             while not env.check_game_done(state):
                 possible_actions = env.get_possible_actions_from_state(state)
                 # Do M simulations
                 best_action = mcts.simulate(player_number, M, state)
                 # Do the action, get next state
                 state = env.generate_child_state_from_action(state, best_action, player_number, True)
+                states_in_game.append(state)
                 # Next players turn
-                player_number += 1
-            winner = (player_number-1) % 2+1
+                player_number = (player_number[1], player_number[0])
+            # Winner was the last player to make a move (one before player_number)
+            winner = (player_number[1], player_number[0])
             if verbose:
                 print('Player {} wins'.format(winner))
-            if winner == 1:
+            if winner == (1,0):
                 p1_wins += 1
             print('*** Game {} done ***'.format(j+1))
+            if visualize:
+                env.visualize(states_in_game, 500)
         
         print('Player 1 wins {} of {} games ({}%).\nPlayer 1 started {}% of the time'.format(p1_wins, G, p1_wins/G*100, p1_start/G*100))
 
         """
         TODO: 
-        - Create board + environment
+        **** P1 only wins 30% no matter who starts. Could be easier to go NW to SE because of my default action-pickers???
+
+        - Run games project 2-style - requires clean GCs, working env
+        - Add NN to rollouts (ANET)
+        - Add target policy update after each actual game
 
         Default policy = behaviour policy = target policy - neural net
 

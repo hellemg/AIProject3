@@ -20,13 +20,13 @@ class Environment:
         """
         return self.game.get_state_from_state_action(state, *action, player, verbose)
 
-    def check_game_done(self, state, player):
+    def check_game_done(self, state):
         """
         :param state: board, either ndarray (ledge) or int (nim)
 
         :returns: boolean, True if the game is done
         """
-        return self.game.check_game_done(state, player)
+        return self.game.check_game_done(state)
 
     def get_possible_actions_from_state(self, state):
         """
@@ -42,12 +42,13 @@ class Environment:
 
         :returns: 1 if P1 won, -1 if P2 won
         """
-        if player_num == 1:
+        if player_num == (1,0):
             return 1
-        elif player_num == 2:
+        elif player_num == (0,1):
             return -1
 
     def draw_game(self, state):
+        # Visualize a single state
         self.game.display_board_graph(state)
 
     def visualize(self, states, frame_delay):

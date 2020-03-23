@@ -77,10 +77,11 @@ class Board:
                 player[1]+1, row, column))
         return temp_grid
 
-    def check_game_done(self, grid, player):
+    def check_game_done(self, grid):
         """
         grid: ndarray, grid in some state
-        player: tuple, (1,0) for p1, (0,1) for p2
+        
+        returns: boolean, True if grid is winning state
         """
         # P1: path across rows (northeast to southwest), P2 path spanning columns (northwest to southeast)
         """
@@ -94,17 +95,28 @@ class Board:
         -- SW: (grid_size-1, c), c is any column (bottom of matrix)
         -- SE: (r, grid_size-1), r is any row (right of matrix)
         """
-        # Start implementing for p1 to see how it goes
-        visited_cells = []
-        to_visit = []
-        for i in range(self.grid_size):
-            # Check for boardcells with (1,0)-value to initiate to_visit for P1
-            if player == (1,0) and grid[0][i] == player:
-                to_visit.append((0, i))
-            # Check for boardcells with (0,1)-value to initiate to_visit for P2
-            if player == (0,1) and grid[i][0] == player:
-                to_visit.append((i, 0))
+        won = False
+        for p in [(1,0), (0,1)]:
+            to_visit = []
+            for i in range(self.grid_size):
+                # Check for boardcells with (1,0)-value to initiate to_visit for P1
+                if p == (1,0) and grid[0][i] == p:
+                    to_visit.append((0, i))
+                # Check for boardcells with (0,1)-value to initiate to_visit for P2
+                if p == (0,1) and grid[i][0] == p:
+                    to_visit.append((i, 0))
+            won = won or self.check_path(grid, to_visit, p)
+        return won
+            
+    def check_path(self, grid, to_visit, player):
+        """
+        :param grid: ndarray, grid in some state
+        :param to_visit: list of tuples, coordinates on grid to visit
+        :param player: tuple, (1,0) for P1, (0,1) for P2
+        """
         # Go through all to_visit-coordinates until none left
+        visited_cells = []
+        #print('welcome to check path\nPlayer: {}\nto_visit:{}'.format(player, to_visit))
         while to_visit:
             current_coords = to_visit.pop()
             # Check if current_cell is on the other side (P1: first coordinate (0), P2: second coordinate (1))

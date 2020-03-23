@@ -10,7 +10,7 @@ class MCTS:
         self.sim_env = env
         # TODO: Add self.evaluate_leaf (=rollout) and self.evaluate_ciritc (NN), so it is generalized and both can be used
 
-    def simulate(self, player_number: int, M: int, init_state):
+    def simulate(self, player_number: tuple, M: int, init_state):
         # Create a node from begin-state
         # NOTE: Everything is reset each round
         node = Node(init_state, parent=None, is_final=False, is_root=True)
@@ -61,7 +61,7 @@ class MCTS:
             # Get child-node with same index as best action
             node = node.children[action_index]
             # Next players turn
-            self.p_num += 1
+            self.p_num = (self.p_num[1], self.p_num[0])
         return node
 
     def expand_leaf_node(self, node):
@@ -81,7 +81,7 @@ class MCTS:
             # Add all children and actions for node
             node.set_children(edges, child_nodes)
             # Moving on to a new layer, so next players turn
-            self.p_num += 1
+            self.p_num = (self.p_num[1], self.p_num[0])
             # Set action_done to the last action, as the last child is returned
             node.set_action_done(edges[-1])
             # Returning last child node, as the value of all child_nodes as unknown
@@ -96,8 +96,6 @@ class MCTS:
         return possible_actions[random_index]
 
     def evaluate_leaf(self, node):
-        # TODO: Use nodes in rollout. I DONT THINK I WILL. No point in creating nodes just to iterate
-
         # Do rollout on `node` to get value
         state = node.name
         while not self.sim_env.check_game_done(state):
@@ -106,15 +104,16 @@ class MCTS:
             action = self.default_policy(possible_actions)
             state = self.sim_env.generate_child_state_from_action(
                 state, action)
-            self.p_num += 1
-        final_player = (self.p_num-1) % 2+1
+            self.p_num = (self.p_num[1], self.p_num[0])
+        # Player that did last move is the final player
+        final_player = (self.p_num[1], self.p_num[0])
         eval_value = self.sim_env.get_environment_value(final_player)
         return eval_value
 
     def get_simulated_action(self, root_node, player_num):
         """
         :param root_node: Node, represents state to find best action from
-        :param player_num: int, 0 or larger, P1 for even numbers and P2 for oss numbers
+        :param player_num: tuple(1,0) for P1, (0,1) for P2
 
         :returns: best action for the player from the current state, given by the highest Q(s,a)-value
         """
@@ -136,7 +135,9 @@ class MCTS:
             node.update(eval_value)
 
     def get_minimax_functions(self, p_num):
-        if p_num % 2+1 == 1:
+        if p_num == (1,0):
             return lambda x1, x2: x1+x2, lambda x1, x2: np.max((x1, x2)), float("-inf")
-        elif p_num % 2+1 == 2:
+        elif p_num == (0,1):
             return lambda x1, x2: x1-x2, lambda x1, x2: np.min((x1, x2)), float("inf")
+        else:
+            raise ValueError('Invalid player number: {}'.format(p_num))
