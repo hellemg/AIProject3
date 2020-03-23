@@ -69,7 +69,6 @@ class Board:
         column: int, column to place piece on
         player: tuple, (1,0) for p1, (0,1) for p2. Also is the new value
         """
-        print('welcome to state from sa')
         temp_grid = grid.copy()
         # Fill grid-cell with appropriate tuple
         temp_grid[row][column] = player
@@ -98,33 +97,28 @@ class Board:
         # Start implementing for p1 to see how it goes
         visited_cells = []
         to_visit = []
-        for c in range(self.grid_size):
-            # Check for boardcells with (1,0)-value to initiate to_visit
-            if grid[0][c] == player:
-                # Should visit the boardcell
-                to_visit.append((0, c))
-        print(to_visit)
+        for i in range(self.grid_size):
+            # Check for boardcells with (1,0)-value to initiate to_visit for P1
+            if player == (1,0) and grid[0][i] == player:
+                to_visit.append((0, i))
+            # Check for boardcells with (0,1)-value to initiate to_visit for P2
+            if player == (0,1) and grid[i][0] == player:
+                to_visit.append((i, 0))
         # Go through all to_visit-coordinates until none left
         while to_visit:
             current_coords = to_visit.pop()
-            print('current coords:', current_coords)
-            # Check if current_cell is on the other side (SW)
-            if current_coords[0] == self.grid_size-1:
+            # Check if current_cell is on the other side (P1: first coordinate (0), P2: second coordinate (1))
+            if current_coords[player[1]] == self.grid_size-1:
                 return True
 
             neighbours = self.cell_neighbours[current_coords]
-            print('neighbours:', neighbours)
             for n_coords in neighbours:
-                input()
                 # Dont go outside grid, dont go back to earlier visited cells
                 if (n_coords is not None) and (n_coords not in visited_cells):
                     # Piece continuing the trail, add to to_visit
-                    print('...checking ', n_coords)
                     if grid[n_coords] == player:
-                        print('...values is {}, adding {} to to_visit'.format(grid[n_coords], n_coords))
                         to_visit.append(n_coords)
             # Make sure not to go back to current cell
-            print('...adding current coords to visited cells', current_coords)
             visited_cells.append(current_coords)
         # Did not find a path
         return False

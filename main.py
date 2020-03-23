@@ -15,20 +15,21 @@ if __name__ == '__main__':
         print('Welcome to testspace')
         env = Environment()
         s = env.generate_initial_state()
+        # Nothing has really happened, so begin with p2
+        player = (0,1)
         env.game.display_board(s)
-        print(env.game.cell_neighbours[0,1])
         actions = env.get_possible_actions_from_state(s)
-        print(actions)
-        for i in range(5):
+        i = 1
+        while not env.check_game_done(s, player):
             print('****************')
             player = ((i+1)%2, i%2)
-            values = input("Input some comma seprated numbers : ")
-            action = tuple(map(int,values.split(',')))
+            actions = env.get_possible_actions_from_state(s)
+            action = actions[0]
             print('Player {} does action {}'.format(player, action))
             s = env.generate_child_state_from_action(s, action, player)
+            i += 1
             env.draw_game(s)
-            did_win = env.check_game_done(s, player)
-            print(did_win)
+        print('Player {} won'.format(i%2))
 
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
