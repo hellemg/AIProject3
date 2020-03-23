@@ -19,7 +19,8 @@ if __name__ == '__main__':
         player = (0,1)
         env.game.display_board(s)
         actions = env.get_possible_actions_from_state(s)
-        i = 1
+        i = 0
+        states_in_game = []
         while not env.check_game_done(s, player):
             print('****************')
             player = ((i+1)%2, i%2)
@@ -27,9 +28,11 @@ if __name__ == '__main__':
             action = actions[0]
             print('Player {} does action {}'.format(player, action))
             s = env.generate_child_state_from_action(s, action, player)
+            states_in_game.append(s)
             i += 1
-            env.draw_game(s)
-        print('Player {} won'.format(i%2))
+            #env.draw_game(s)
+        print('Player {} won'.format((i+1)%2+1))
+        env.visualize(states_in_game, 1000)
 
     elif Menu == 'MCTS':
         print('Welcome to MCTS')

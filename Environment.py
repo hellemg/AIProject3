@@ -1,6 +1,8 @@
 from Game import Nim, Ledge
 from Board import Board
 from GlobalConstants import *
+import matplotlib.animation
+import matplotlib.pyplot as plt
 
 
 class Environment:
@@ -47,3 +49,15 @@ class Environment:
 
     def draw_game(self, state):
         self.game.display_board_graph(state)
+
+    def visualize(self, states, frame_delay):
+        """
+        Visualize a game given a list of states
+        :param actions: A list of states (grids)
+        """
+        def act_and_visualize(i):
+            self.game.display_board_graph(states[i])
+
+        fig = plt.gcf()
+        ani = matplotlib.animation.FuncAnimation(fig, act_and_visualize, frames=(len(states)), interval=frame_delay, repeat=False)
+        plt.show()

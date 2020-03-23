@@ -167,4 +167,4 @@ class Board:
 
         # TODO: Comment out plt.show() when animating
 
-        plt.show()
+        #plt.show()
