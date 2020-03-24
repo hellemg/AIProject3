@@ -27,10 +27,13 @@ class MCTS:
 
             # 3. Leaf evaluation
             eval_value = self.evaluate_leaf(leaf_node)
-
             # 4. Backprop
             self.backpropagate(leaf_node, eval_value)
             #input('...press any key to do next simulation\n\n')
+        
+        # TODO: Return distribution over visited arcs from root (D*). Choose best move in main
+        # TODO: Feature set F: node-state + player
+
         return self.get_simulated_action(node, player_number)
 
     def tree_policy(self, node, combine_function, arg_function, best_value):
@@ -73,7 +76,7 @@ class MCTS:
             for e in edges:
                 # Get the child state action `e` would result in
                 child_state = self.sim_env.generate_child_state_from_action(
-                    node.name, e)
+                    node.name, e, self.p_num)
                 is_final = self.sim_env.check_game_done(child_state)
                 # Add child node, with parent `node`
                 child_node = Node(child_state, parent=node, is_final=is_final)
@@ -99,11 +102,14 @@ class MCTS:
         # Do rollout on `node` to get value
         state = node.name
         while not self.sim_env.check_game_done(state):
+
+            # TODO: Add anet-policy. Use epsilon-greedy choice of action
+
             possible_actions = self.sim_env.get_possible_actions_from_state(
                 state)
             action = self.default_policy(possible_actions)
             state = self.sim_env.generate_child_state_from_action(
-                state, action)
+                state, action, self.p_num)
             self.p_num = (self.p_num[1], self.p_num[0])
         # Player that did last move is the final player
         final_player = (self.p_num[1], self.p_num[0])

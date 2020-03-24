@@ -4,6 +4,7 @@ from GlobalConstants import *
 from Game import *
 from Environment import Environment
 from MCTS import MCTS
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     Menu = {
@@ -13,26 +14,65 @@ if __name__ == '__main__':
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
+
         env = Environment()
         s = env.generate_initial_state()
-        # Nothing has really happened, so begin with p2
-        player = (0,1)
-        env.game.display_board(s)
-        actions = env.get_possible_actions_from_state(s)
-        i = 0
-        states_in_game = []
-        while not env.check_game_done(s, player):
-            print('****************')
-            player = ((i+1)%2, i%2)
-            actions = env.get_possible_actions_from_state(s)
-            action = actions[0]
-            print('Player {} does action {}'.format(player, action))
-            s = env.generate_child_state_from_action(s, action, player)
-            states_in_game.append(s)
-            i += 1
-            #env.draw_game(s)
-        print('Player {} won'.format((i+1)%2+1))
-        env.visualize(states_in_game, 1000)
+        states = [s.copy()]
+        s[0,1] = (1,0)
+        states.append(s.copy())
+        print(env.check_game_done(s))   
+        s[1,0] = (0,1)
+        states.append(s.copy())
+        print(env.check_game_done(s))   
+        s[1,1] = (1,0)
+        states.append(s.copy())
+        print(env.check_game_done(s))   
+        s[2,1] = (0,1)
+        states.append(s.copy())
+        print(env.check_game_done(s))   
+        s[1,2] = (1,0)
+        states.append(s.copy())
+        print(env.check_game_done(s))   
+        s[2,2] = (0,1)
+        states.append(s.copy())
+        print(env.check_game_done(s))   
+        s[1,3] = (1,0)
+        states.append(s.copy())
+        print(env.check_game_done(s))   
+        s[3,3] = (0,1)
+        states.append(s.copy())
+        print(env.check_game_done(s))   
+        s[2,3] = (1,0)
+        states.append(s.copy())
+        print(env.check_game_done(s))   
+        s[2,0] = (0,1)
+        states.append(s.copy())
+        print(env.check_game_done(s))   
+        s[3,2] = (1,0)
+        states.append(s.copy())
+        print(env.check_game_done(s))   
+        
+        env.visualize(states, 500)
+        # env = Environment()
+        # s = env.generate_initial_state()
+        # # Nothing has really happened, so begin with p2
+        # player = (0,1)
+        # env.game.print_board(s)
+        # actions = env.get_possible_actions_from_state(s)
+        # i = 0
+        # states_in_game = []
+        # while not env.check_game_done(s, player):
+        #     print('****************')
+        #     player = ((i+1)%2, i%2)
+        #     actions = env.get_possible_actions_from_state(s)
+        #     action = actions[0]
+        #     print('Player {} does action {}'.format(player, action))
+        #     s = env.generate_child_state_from_action(s, action, player)
+        #     states_in_game.append(s)
+        #     i += 1
+        #     #env.draw_game(s)
+        # print('Player {} won'.format((i+1)%2+1))
+        # env.visualize(states_in_game, 1000)
 
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
@@ -52,6 +92,9 @@ if __name__ == '__main__':
                 possible_actions = env.get_possible_actions_from_state(state)
                 # Do M simulations
                 best_action = mcts.simulate(player_number, M, state)
+
+                # TODO: Get D back from MCTS (See TODO in MCTS). Save to RBUF
+
                 # Do the action, get next state
                 state = env.generate_child_state_from_action(state, best_action, player_number, True)
                 states_in_game.append(state)
@@ -66,12 +109,21 @@ if __name__ == '__main__':
             print('*** Game {} done ***'.format(j+1))
             if visualize:
                 env.visualize(states_in_game, 500)
+
+            # TODO: Train anet on random minibatch of cases from RBUF
+            # TODO: Save anet's parameters if save-condition
         
         print('Player 1 wins {} of {} games ({}%).\nPlayer 1 started {}% of the time'.format(p1_wins, G, p1_wins/G*100, p1_start/G*100))
 
         """
         TODO: 
         **** P1 only wins 30% no matter who starts. Could be easier to go NW to SE because of my default action-pickers???
+
+        NOTE: files to add
+        - neural network(s)
+        - TOPP
+        - Have environment (and Hex)
+        - Have MCTS
 
         - Run games project 2-style - requires clean GCs, working env
         - Add NN to rollouts (ANET)

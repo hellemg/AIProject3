@@ -13,7 +13,7 @@ class Environment:
     def generate_initial_state(self):
         return self.game.get_initial_state()
 
-    def generate_child_state_from_action(self, state, action, player=(1,0), verbose=False):
+    def generate_child_state_from_action(self, state, action, player, verbose=False):
         """
         :param state: board, either ndarray (ledge) or int (nim)
         :param action: tuple with action to do

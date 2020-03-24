@@ -20,44 +20,16 @@ class Board:
                 grid[i, j] = (0, 0)
         return grid
 
-    def get_neighbour_list(self, row, column):
-        neighbour_list = [None, None, None, None, None, None]
-        # List of coordinates for the neighbours of cell [row, column]
-        if (row > 0):
-            neighbour_list[0] = (row-1, column)
-            if (column < self.grid_size - 1):
-                neighbour_list[1] = (row-1, column+1)
-        if (column > 0):
-            neighbour_list[3] = (row, column-1)
-        if (column < self.grid_size - 1):
-            neighbour_list[2] = (row, column+1)
-        if (row < self.grid_size - 1):
-            neighbour_list[5] = (row+1, column)
-            if (column > 0):
-                neighbour_list[4] = (row+1, column-1)
-        return neighbour_list
-
-    def get_grid_size(self):
-        return self.grid_size
-
-    def display_board(self, grid):
-        print('-------------------')
-        for i in range(self.grid_size):
-            for j in range(self.grid_size):
-                print(grid[i][j], end='')
-            print('\n')
-
     def get_possible_actions_from_state(self, grid):
         """
-        Finds all possible actions from a given state (empty boardcells)
+        Finds all possible actions from a given state (action = empty boardcell)
         grid: ndarray, grid in some state
 
         :returns: list of tuples (row, column)
         """
         possible_actions = []
-        rows, columns = grid.shape
-        for r in range(rows):
-            for c in range(columns):
+        for r in range(self.grid_size):
+            for c in range(self.grid_size):
                 if grid[r][c] == (0, 0):
                     possible_actions.append((r, c))
         return possible_actions
@@ -80,7 +52,7 @@ class Board:
     def check_game_done(self, grid):
         """
         grid: ndarray, grid in some state
-        
+
         returns: boolean, True if grid is winning state
         """
         # P1: path across rows (northeast to southwest), P2 path spanning columns (northwest to southeast)
@@ -95,19 +67,35 @@ class Board:
         -- SW: (grid_size-1, c), c is any column (bottom of matrix)
         -- SE: (r, grid_size-1), r is any row (right of matrix)
         """
-        won = False
-        for p in [(1,0), (0,1)]:
-            to_visit = []
-            for i in range(self.grid_size):
-                # Check for boardcells with (1,0)-value to initiate to_visit for P1
-                if p == (1,0) and grid[0][i] == p:
-                    to_visit.append((0, i))
-                # Check for boardcells with (0,1)-value to initiate to_visit for P2
-                if p == (0,1) and grid[i][0] == p:
-                    to_visit.append((i, 0))
-            won = won or self.check_path(grid, to_visit, p)
-        return won
-            
+        # TEST GAME: if you have 2/3 of the win-spots, you win
+        # win_spots = [(0,0),(1,1),(2,2)]
+        # if grid[win_spots[0]] == grid[win_spots[1]] and grid[win_spots[0]] != (0,0):
+        #     return True
+        # elif grid[win_spots[0]] == grid[win_spots[2]] and grid[win_spots[0]] != (0,0):
+        #     return True
+        # elif grid[win_spots[1]] == grid[win_spots[2]] and grid[win_spots[1]] != (0,0):
+        #     return True
+        # return False
+
+
+        # Check for P1 - Upper right to lower left
+        to_visit = []
+        for i in range(self.grid_size):
+            # Check upper right edge for boardcells with (1,0)-value
+            if grid[0][i] == (1,0):
+                to_visit.append((0, i))
+        if self.check_path(grid, to_visit, (1,0)):
+            return True
+        # Check for P2 - Upper left to lower right
+        to_visit = []
+        for i in range(self.grid_size):
+            # Check upper left edge for boardcells with (0,1)-value
+            if grid[i][0] == (0,1):
+                to_visit.append((i, 0))
+        if self.check_path(grid, to_visit, (0,1)):
+            return True
+        return False
+
     def check_path(self, grid, to_visit, player):
         """
         :param grid: ndarray, grid in some state
@@ -119,10 +107,11 @@ class Board:
         #print('welcome to check path\nPlayer: {}\nto_visit:{}'.format(player, to_visit))
         while to_visit:
             current_coords = to_visit.pop()
+            #print('currently at {}'.format(current_coords))
             # Check if current_cell is on the other side (P1: first coordinate (0), P2: second coordinate (1))
             if current_coords[player[1]] == self.grid_size-1:
                 return True
-
+            # Find neighbouring cells to check for a path of `player`-cells
             neighbours = self.cell_neighbours[current_coords]
             for n_coords in neighbours:
                 # Dont go outside grid, dont go back to earlier visited cells
@@ -134,6 +123,30 @@ class Board:
             visited_cells.append(current_coords)
         # Did not find a path
         return False
+
+    def get_neighbour_list(self, row, column):
+        neighbour_list = [None, None, None, None, None, None]
+        # List of coordinates for the neighbours of cell [row, column]
+        if (row > 0):
+            neighbour_list[0] = (row-1, column)
+            if (column < self.grid_size - 1):
+                neighbour_list[1] = (row-1, column+1)
+        if (column > 0):
+            neighbour_list[3] = (row, column-1)
+        if (column < self.grid_size - 1):
+            neighbour_list[2] = (row, column+1)
+        if (row < self.grid_size - 1):
+            neighbour_list[5] = (row+1, column)
+            if (column > 0):
+                neighbour_list[4] = (row+1, column-1)
+        return neighbour_list
+
+    def print_board(self, grid):
+        print('-------------------')
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                print(grid[i][j], end='')
+            print('\n')
 
     def display_board_graph(self, grid):
         # node network
@@ -168,7 +181,6 @@ class Board:
                     if n is not None:
                         # Add edge between current node and neighbour node
                         G.add_edge((i, j), (n[0], n[1]))
-
         # Plot
         pos = nx.get_node_attributes(G, 'pos')
 
@@ -179,4 +191,42 @@ class Board:
 
         # TODO: Comment out plt.show() when animating
 
-        #plt.show()
+        # plt.show()
+
+
+# class Board:
+#     def __init__(self, K):
+#         # K as defined in GC
+#         self.K = K
+
+#     def get_initial_state(self):
+#         return 75
+
+#     def get_state_from_state_action(self, total_pieces, num_pieces, player, verbose):
+#         """
+#         :param num_pieces: int, pieces getting picked up
+
+#         :returns: int, pieces left on the board
+#         """
+#         if verbose:
+#             print('Player {} selects {} stones. Remaining stones = {}'.format(
+#                 player, num_pieces, total_pieces-num_pieces))
+#         return total_pieces-num_pieces
+
+#     def check_game_done(self, total_pieces):
+#         """
+#         :param total_pieces: int, pieces on the board
+
+#         returns: boolean, if all pieces have been picked up
+#         """
+#         return total_pieces == 0
+
+#     def get_possible_actions_from_state(self, total_pieces):
+#         """
+#         :param total_pieces: int, pieces on the board
+
+#         :returns: list tuples with possible actions to take
+#         """
+#         # returns list of possible number of pieces to pick up
+#         max_pieces = np.minimum(self.K, total_pieces)+1
+#         return [(i,) for i in range(1, max_pieces)]
