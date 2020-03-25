@@ -46,4 +46,4 @@ class Node:
 
     def set_action_done(self, action):
         self.action_done = action
-        #print('...{} action done is {}'.format(self.name, action))
+        #print('...doing {} from:\n{}'.format(action,self.name))

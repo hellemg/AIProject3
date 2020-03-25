@@ -13,7 +13,7 @@ visualize = False
 G = 10
 
 # Number of simulations (and therefore rollouts) for each move
-M = 8000
+M = 500
 
 # Player to start, P1: (1,0), P2: (0,1)
 P = (0,1)

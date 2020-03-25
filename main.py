@@ -8,9 +8,10 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     Menu = {
-        'T': 'Testspace',
+        'Test': 'Testspace',
         'M': 'MCTS',
-    }['M']
+        'T': 'TOPP',
+    }['T']
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
@@ -18,40 +19,40 @@ if __name__ == '__main__':
         env = Environment()
         s = env.generate_initial_state()
         states = [s.copy()]
-        s[0,1] = (1,0)
+        s[0, 1] = (1, 0)
         states.append(s.copy())
-        print(env.check_game_done(s))   
-        s[1,0] = (0,1)
+        print(env.check_game_done(s))
+        s[1, 0] = (0, 1)
         states.append(s.copy())
-        print(env.check_game_done(s))   
-        s[1,1] = (1,0)
+        print(env.check_game_done(s))
+        s[1, 1] = (1, 0)
         states.append(s.copy())
-        print(env.check_game_done(s))   
-        s[2,1] = (0,1)
+        print(env.check_game_done(s))
+        s[2, 1] = (0, 1)
         states.append(s.copy())
-        print(env.check_game_done(s))   
-        s[1,2] = (1,0)
+        print(env.check_game_done(s))
+        s[1, 2] = (1, 0)
         states.append(s.copy())
-        print(env.check_game_done(s))   
-        s[2,2] = (0,1)
+        print(env.check_game_done(s))
+        s[2, 2] = (0, 1)
         states.append(s.copy())
-        print(env.check_game_done(s))   
-        s[1,3] = (1,0)
+        print(env.check_game_done(s))
+        s[1, 3] = (1, 0)
         states.append(s.copy())
-        print(env.check_game_done(s))   
-        s[3,3] = (0,1)
+        print(env.check_game_done(s))
+        s[3, 3] = (0, 1)
         states.append(s.copy())
-        print(env.check_game_done(s))   
-        s[2,3] = (1,0)
+        print(env.check_game_done(s))
+        s[2, 3] = (1, 0)
         states.append(s.copy())
-        print(env.check_game_done(s))   
-        s[2,0] = (0,1)
+        print(env.check_game_done(s))
+        s[2, 0] = (0, 1)
         states.append(s.copy())
-        print(env.check_game_done(s))   
-        s[3,2] = (1,0)
+        print(env.check_game_done(s))
+        s[3, 2] = (1, 0)
         states.append(s.copy())
-        print(env.check_game_done(s))   
-        
+        print(env.check_game_done(s))
+
         env.visualize(states, 500)
         # env = Environment()
         # s = env.generate_initial_state()
@@ -77,6 +78,12 @@ if __name__ == '__main__':
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
 
+        # Rounds to save parameters for ANET
+        save_interval = int(np.floor(G/(num_caches-1)))
+
+        # TODO: Save parameters for starting ANET (round 0, no training has occured)
+        # TODO: Clear RBUF
+
         p1_wins = 0
         p1_start = 0
         for j in range(G):
@@ -96,7 +103,8 @@ if __name__ == '__main__':
                 # TODO: Get D back from MCTS (See TODO in MCTS). Save to RBUF
 
                 # Do the action, get next state
-                state = env.generate_child_state_from_action(state, best_action, player_number, True)
+                state = env.generate_child_state_from_action(
+                    state, best_action, player_number, True)
                 states_in_game.append(state)
                 # Next players turn
                 player_number = (player_number[1], player_number[0])
@@ -104,7 +112,7 @@ if __name__ == '__main__':
             winner = (player_number[1], player_number[0])
             if verbose:
                 print('Player {} wins'.format(winner))
-            if winner == (1,0):
+            if winner == (1, 0):
                 p1_wins += 1
             print('*** Game {} done ***'.format(j+1))
             if visualize:
@@ -112,20 +120,41 @@ if __name__ == '__main__':
 
             # TODO: Train anet on random minibatch of cases from RBUF
             # TODO: Save anet's parameters if save-condition
-        
-        print('Player 1 wins {} of {} games ({}%).\nPlayer 1 started {}% of the time'.format(p1_wins, G, p1_wins/G*100, p1_start/G*100))
+            # j begins at 0, so add 1
+            if (j+1) % save_interval == 0:
+                print(
+                    'TODO: SAVE PARAMETERS. Training for round {} has completed'.format(j+1))
+
+        print('Player 1 wins {} of {} games ({}%).\nPlayer 1 started {}% of the time'.format(
+            p1_wins, G, p1_wins/G*100, p1_start/G*100))
+
+    elif Menu == 'TOPP':
+        print('******* WELCOME TO THE TOURNAMENT *******')
+
+        agents = []
+
+        for i in range(num_caches):
+            # TODO: Create agent for each saved parameters-file. Need Agent-class
+            # New suggestion: give ANETS states and get back action-probabilities. Create agents that have choose_action_method
+            print('...TODO: create agent')
+            a = 'agent'+str(i+1)
+            agents.append(a)
+
+        for i in range(len(agents)):
+            # Each agent plays against all agents after it in the list `agents`
+            first_agent = agents[i]
+            for j in range(i+1, len(agents)):
+                second_agent = agents[j]
+                print('TOURNAMENT BETWEEN: ', first_agent, second_agent)
+                print('...play {} games'.format(num_games))
+                first_agent_wins = 2
+                print('{} won {} of {} games ({}%).'.format(
+                    first_agent, first_agent_wins, num_games, np.round(first_agent_wins/num_games*100, 2)))
+
 
         """
-        TODO: 
-        **** P1 only wins 30% no matter who starts. Could be easier to go NW to SE because of my default action-pickers???
 
-        NOTE: files to add
-        - neural network(s)
-        - TOPP
-        - Have environment (and Hex)
-        - Have MCTS
-
-        - Run games project 2-style - requires clean GCs, working env
+        - DONE: Run games project 2-style - requires clean GCs, working env
         - Add NN to rollouts (ANET)
         - Add target policy update after each actual game
 
