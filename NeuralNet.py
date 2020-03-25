@@ -11,6 +11,7 @@ class NeuralNet:
         input_layer = Input(shape=input_shape)
         # Define architecture
         x = input_layer
+        assert len(hidden_layers) == len(activations), 'Different number of hidden layers and activations'
         for layer, activation in zip(hidden_layers, activations):
             x = Dense(layer, activation=activation)(x)
         self.anet = Model(input_layer, x)
@@ -86,13 +87,13 @@ class NeuralNet:
         # Return random action with probability epsilon
         return non_best_actions[random_index]
 
-    def train_on_rbuf(self, rbuf):
+    def train_on_rbuf(self, rbuf_X, rbuf_y):
         # TODO: Get random subset of rbuf for training
-        # TODO: model.fit(features, D) - features is X, D is y
         """
         rbuf consists of states+players, D (distributions over actions from states)
         """
-
+        print('...training on {} samples'.format(rbuf_X.shape[0]))
+        self.anet.fit(rbuf_X, rbuf_y, epochs=20, verbose=0)
 
     def save_params(self, i):
         """

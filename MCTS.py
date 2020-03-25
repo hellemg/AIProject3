@@ -1,7 +1,7 @@
 import numpy as np
 from Node import Node
 import random
-from GlobalConstants import epsilon_decay
+from GlobalConstants import epsilon_decay, grid_size
 
 class MCTS:
     def __init__(self, env, neural_net, epsilon, random_leaf_eval_fraction):
@@ -42,9 +42,15 @@ class MCTS:
             # 4. Backprop
             self.backpropagate(leaf_node, eval_value)
             #input('...press any key to do next simulation\n\n')
-        
         D = np.array([visit for visit in node.N_sa.values()])/M
-        return self.get_simulated_action(node, player_number), D.reshape((1,len(D)))
+        action_distributions = self.get_action_distribution(node, D)
+        return self.get_simulated_action(node, player_number), action_distributions
+
+    def get_action_distribution(self, node, D):
+        action_distributions = np.zeros(grid_size**2)
+        for i, (r,c) in enumerate(node.N_sa.keys()):
+            action_distributions[r*grid_size+c] = D[i]
+        return action_distributions
 
     def tree_policy(self, node, combine_function, arg_function, best_value):
         # Using UCT to find best action in the tree

@@ -13,20 +13,38 @@ if __name__ == '__main__':
         'Test': 'Testspace',
         'M': 'MCTS',
         'T': 'TOPP',
-    }['Test']
+    }['T']
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
+        env = Environment()
         neural_net = NeuralNet()
-        X = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0]).reshape(1,20)
+        state = env.generate_initial_state()
+        state[0,2] = (1,0)
+        state[1,1] = (1,0)
+        state[1,0] = (0,1)
+        state[1,2] = (0,1)
+        print(state)
+        env.draw_game(state)
+        plt.show()
+        # Wins are (2,0) and (2,1)
+
+        X = np.array([0, 0, 0, 0, 1, 0,
+                      0, 1, 1, 0, 0, 1,
+                      0, 0, 0, 0, 0, 0,
+                      1, 0]).reshape(1, 20)
+        neural_net.load_params(0)
         pred1 = neural_net.anet.predict(X)
-        neural_net.load_params(5)
+        neural_net.load_params(125)
         pred2 = neural_net.anet.predict(X)
-        neural_net.load_params(10)
+        neural_net.load_params(250)
         pred3 = neural_net.anet.predict(X)
-        print(pred1)
-        print(pred2)
-        print(pred3)
+        print(np.round(pred1,3))
+        print(np.round(pred2,3))
+        print(np.round(pred3,3))
+        print(np.sum(pred1))
+        print(np.sum(pred2))
+        print(np.sum(pred3))
 
         # env = Environment()
         # s = env.generate_initial_state()
@@ -62,12 +80,14 @@ if __name__ == '__main__':
         p1_wins = 0
         p1_start = 0
         neural_net = NeuralNet()
+        # Save model before training
+        neural_net.save_params(0)
         for j in range(G):
             env = Environment()
             mcts = MCTS(env, neural_net, eps, ane)
-            # RBUF with room for one example per simulation
-            rbuf_train = np.zeros((M, input_shape))
-            rbuf_test = np.zeros((M, grid_size**2))
+            # RBUF with room for one example per game-move
+            rbuf_X = []
+            rbuf_y = []
             print('...using {}% ANET evaluation'.format(
                 np.round((1-ane)*100, 3)))
             states_in_game = []
@@ -82,13 +102,13 @@ if __name__ == '__main__':
                 best_action, D = mcts.simulate(player_number, M, state)
 
                 # Add tuple of training example-data and target to RBUF
-                # features = neural_net.convert_to_nn_input(state, player_number)
-                # rbuf_train[j] = features
-                # rbuf_test[j] = D
+                features = neural_net.convert_to_nn_input(state, player_number)
+                rbuf_X.append(features.reshape(20))
+                rbuf_y.append(D)
 
                 # Do the action, get next state
                 state = env.generate_child_state_from_action(
-                    state, best_action, player_number, True)
+                    state, best_action, player_number, verbose)
                 states_in_game.append(state)
                 # Next players turn
                 player_number = (player_number[1], player_number[0])
@@ -101,15 +121,14 @@ if __name__ == '__main__':
             print('*** Game {} done ***'.format(j+1))
             if visualize:
                 env.visualize(states_in_game, 500)
-            
+
             # Decay epsilon and anet_fraction
             #eps *= epsilon_decay
-            #ane *= random_leaf_eval_decay
+            ane *= random_leaf_eval_decay
 
-            # TODO: Train anet on random minibatch of cases from RBUF
+            # TODO: Train anet on random minibatch of cases from RBUF (in method)
+            neural_net.train_on_rbuf(np.array(rbuf_X), np.array(rbuf_y))
 
-
-            # TODO: Save anet's parameters if save-condition
             # j begins at 0, so add 1
             if (j+1) % save_interval == 0:
                 neural_net.save_params(j+1)
@@ -126,7 +145,10 @@ if __name__ == '__main__':
             # TODO: Create agent for each saved parameters-file. Need Agent-class
             # New suggestion: give ANETS states and get back action-probabilities. Create agents that have choose_action_method
             print('...TODO: create agent')
-            a = 'agent'+str(i+1)
+            # a = 'agent'+str(i+1)
+            a = NeuralNet()
+            a.load_params(i+1)
+            a.anet._name = 'ANET'+str(i+1)
             agents.append(a)
 
         for i in range(len(agents)):
