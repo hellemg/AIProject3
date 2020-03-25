@@ -13,10 +13,21 @@ if __name__ == '__main__':
         'Test': 'Testspace',
         'M': 'MCTS',
         'T': 'TOPP',
-    }['M']
+    }['Test']
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
+        neural_net = NeuralNet()
+        X = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0]).reshape(1,20)
+        pred1 = neural_net.anet.predict(X)
+        neural_net.load_params(5)
+        pred2 = neural_net.anet.predict(X)
+        neural_net.load_params(10)
+        pred3 = neural_net.anet.predict(X)
+        print(pred1)
+        print(pred2)
+        print(pred3)
+
         # env = Environment()
         # s = env.generate_initial_state()
         # # Nothing has really happened, so begin with p2
@@ -71,18 +82,9 @@ if __name__ == '__main__':
                 best_action, D = mcts.simulate(player_number, M, state)
 
                 # Add tuple of training example-data and target to RBUF
-                features = neural_net.convert_to_nn_input(state, player_number)
-                print(np.sum(D))
-                print(features.shape)
-                print(D.shape)
-
-                rbuf_train[j] = features
-                rbuf_test[j] = D
-                print(rbuf_train[j])
-                print(rbuf_test[j])
-                print(rbuf_train.shape)
-                print(rbuf_test.shape)
-                input()
+                # features = neural_net.convert_to_nn_input(state, player_number)
+                # rbuf_train[j] = features
+                # rbuf_test[j] = D
 
                 # Do the action, get next state
                 state = env.generate_child_state_from_action(
@@ -99,19 +101,18 @@ if __name__ == '__main__':
             print('*** Game {} done ***'.format(j+1))
             if visualize:
                 env.visualize(states_in_game, 500)
-            exit()
+            
             # Decay epsilon and anet_fraction
             #eps *= epsilon_decay
-            ane *= random_leaf_eval_decay
+            #ane *= random_leaf_eval_decay
 
             # TODO: Train anet on random minibatch of cases from RBUF
 
 
             # TODO: Save anet's parameters if save-condition
             # j begins at 0, so add 1
-            # if (j+1) % save_interval == 0:
-            #     print(
-            #         'TODO: SAVE PARAMETERS. Training for round {} has completed'.format(j+1))
+            if (j+1) % save_interval == 0:
+                neural_net.save_params(j+1)
 
         print('Player 1 wins {} of {} games ({}%).\nPlayer 1 started {}% of the time'.format(
             p1_wins, G, p1_wins/G*100, p1_start/G*100))

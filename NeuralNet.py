@@ -103,7 +103,7 @@ class NeuralNet:
         https://www.tensorflow.org/tutorials/keras/save_and_load
         """
         self.anet.save_weights('./checkpoints/save_{}'.format(i))
-        raise NotImplementedError
+        print('...parameters for round {} have been saved to file'.format(i))
 
     def load_params(self, i):
         """
