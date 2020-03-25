@@ -1,7 +1,7 @@
 import numpy as np
 
 # Hex game
-grid_size = 4
+grid_size = 3
 
 # NOTE: Player 1 is max-player
 
@@ -26,13 +26,15 @@ lr = 0.0001
 input_shape = 2*grid_size**2+2
 
 # Neurons per hidden layer and for the output layer
-hidden_layers = [128, 64, 32, grid_size**2]
+hidden_layers = [64, 32, grid_size**2]
 
 # Activation functions (linear, sigmoid, tanh, relu)
 activations = ['relu','relu', 'relu', 'softmax']
 
 # Optimizer (adagrad, Stochastic Gradient Descent (SGD), RMSProp, and Adam)
+# TODO: Add learning rate to optimizer
 optimizer = 'adam'
+
 
 # TOPP parameters
 
@@ -42,3 +44,10 @@ num_caches = 3
 # Number of games to be played between any two ANET-agents in the TOPP
 num_games = 3
 
+# Epsilon
+epsilon = 0.8
+epsilon_decay = 0.7
+
+# ANET vs random rollout on leaf evaluation (speed up)
+random_leaf_eval_fraction = 1
+random_leaf_eval_decay = 0.8

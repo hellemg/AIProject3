@@ -1,13 +1,17 @@
 import numpy as np
 from Node import Node
-
+import random
+from GlobalConstants import epsilon_decay
 
 class MCTS:
-    def __init__(self, env):
+    def __init__(self, env, neural_net, epsilon, random_leaf_eval_fraction):
         self.c = 1
         # Dict to keep different values for nodes
         self.states = {}
         self.sim_env = env
+        self.neural_net = neural_net
+        self.epsilon = epsilon
+        self.random_leaf_eval_fraction = random_leaf_eval_fraction
         # TODO: Add self.evaluate_leaf (=rollout) and self.evaluate_ciritc (NN), so it is generalized and both can be used
 
     def simulate(self, player_number: tuple, M: int, init_state):
@@ -16,7 +20,8 @@ class MCTS:
         node = Node(init_state, parent=None, is_final=False, is_root=True)
         for i in range(M):
             self.p_num = player_number
-            #print('--- Simulation {} ---'.format(i+1))
+            # if i%100 == 0:
+            #     print('--- Simulation {} ---'.format(i+1))
 
             # 1. Follow tree policy to leaf node
             # Note: leaf-node may be a final state, but not necessary
@@ -26,15 +31,20 @@ class MCTS:
             leaf_node = self.expand_leaf_node(leaf_node)
 
             # 3. Leaf evaluation
+            if random.random() <= self.random_leaf_eval_fraction:
+                # Use random leaf_eval
+                self.rollout_evaluation = self.default_policy
+            else:
+                # Use ANETs leaf_eval
+                self.rollout_evaluation = self.neural_net.default_policy
             eval_value = self.evaluate_leaf(leaf_node)
+
             # 4. Backprop
             self.backpropagate(leaf_node, eval_value)
             #input('...press any key to do next simulation\n\n')
         
-        # TODO: Return distribution over visited arcs from root (D*). Choose best move in main
-        # TODO: Feature set F: node-state + player
-
-        return self.get_simulated_action(node, player_number)
+        D = np.array([visit for visit in node.N_sa.values()])/M
+        return self.get_simulated_action(node, player_number), D.reshape((1,len(D)))
 
     def tree_policy(self, node, combine_function, arg_function, best_value):
         # Using UCT to find best action in the tree
@@ -93,8 +103,9 @@ class MCTS:
             # Node is a leaf-node already (final state), so return it
             return node
 
-    def default_policy(self, possible_actions):
+    def default_policy(self, possible_actions, state, p_num, epsilon):
         # Using uniform distribution to get an action
+        # All parameters except `possible_actions` are dummy-parameters, to match ANETs parameters
         random_index = np.random.randint(len(possible_actions))
         return possible_actions[random_index]
 
@@ -102,12 +113,11 @@ class MCTS:
         # Do rollout on `node` to get value
         state = node.name
         while not self.sim_env.check_game_done(state):
-
-            # TODO: Add anet-policy. Use epsilon-greedy choice of action
-
             possible_actions = self.sim_env.get_possible_actions_from_state(
                 state)
-            action = self.default_policy(possible_actions)
+            action = self.rollout_evaluation(possible_actions, state, self.p_num, self.epsilon)
+            #action = self.NN.default_policy(possible_actions, state, self.p_num, self.epsilon)
+            #action = self.default_policy(possible_actions, state, self.p_num, self.epsilon)
             state = self.sim_env.generate_child_state_from_action(
                 state, action, self.p_num)
             self.p_num = (self.p_num[1], self.p_num[0])
