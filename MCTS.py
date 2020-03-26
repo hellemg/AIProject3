@@ -1,16 +1,15 @@
 import numpy as np
 from Node import Node
 import random
-from GlobalConstants import epsilon_decay, grid_size, p1, p2
+from GlobalConstants import grid_size, p1, p2
 
 class MCTS:
-    def __init__(self, env, neural_net, epsilon, random_leaf_eval_fraction):
+    def __init__(self, env, neural_net, random_leaf_eval_fraction):
         self.c = 1
         # Dict to keep different values for nodes
         self.states = {}
         self.sim_env = env
         self.neural_net = neural_net
-        self.epsilon = epsilon
         self.random_leaf_eval_fraction = random_leaf_eval_fraction
         # TODO: Add self.evaluate_leaf (=rollout) and self.evaluate_ciritc (NN), so it is generalized and both can be used
 
@@ -109,7 +108,7 @@ class MCTS:
             # Node is a leaf-node already (final state), so return it
             return node
 
-    def default_policy(self, possible_actions, state, p_num, epsilon):
+    def default_policy(self, possible_actions, state, p_num):
         # Using uniform distribution to get an action
         # All parameters except `possible_actions` are dummy-parameters, to match ANETs parameters
         random_index = np.random.randint(len(possible_actions))
@@ -121,7 +120,7 @@ class MCTS:
         while not self.sim_env.check_game_done(state):
             possible_actions = self.sim_env.get_possible_actions_from_state(
                 state)
-            action = self.rollout_evaluation(possible_actions, state, self.p_num, self.epsilon)
+            action = self.rollout_evaluation(possible_actions, state, self.p_num)
             #action = self.NN.default_policy(possible_actions, state, self.p_num, self.epsilon)
             #action = self.default_policy(possible_actions, state, self.p_num, self.epsilon)
             state = self.sim_env.generate_child_state_from_action(

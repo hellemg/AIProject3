@@ -1,10 +1,11 @@
 import numpy as np
-import timeit
+import time
 from GlobalConstants import *
 from Game import *
 from Environment import Environment
 from MCTS import MCTS
 from NeuralNet import NeuralNet
+from utils import test_time
 
 import matplotlib.pyplot as plt
 
@@ -16,37 +17,45 @@ if __name__ == '__main__':
     }['M']
 
     if Menu == 'Testspace':
-
-        # TODO: timeit for default rollout and for anet rollout. Goal: is predict slow or is my representation-changes slow
-        # NOTE: Write testing-method that takes the average time of a method
-
         print('Welcome to testspace')
+
         env = Environment()
-        s = env.generate_initial_state()
-        print(env.game.cell_neighbours[0])
-        print(env.game.cell_neighbours[1])
-        print(env.game.cell_neighbours[3])
-        print(env.game.cell_neighbours[8])
-        # Nothing has really happened, so begin with p2
-        p1 = 1
-        p2 = -1
-        env.draw_game(s)
-        plt.show()
-        i = 0
-        states_in_game = []
-        while not env.check_game_done(s):
-            print('****************')
-            player ^= (p1 ^ p2)
-            actions = env.get_possible_actions_from_state(s)
-            print('possible actions:', actions)
-            action = actions[0]
-            print('Player {} does action {}'.format(player, action))
-            s = env.generate_child_state_from_action(s, action, player)
-            states_in_game.append(s)
-            i += 1
-            env.game.print_board(s)
-        print('Player {} won'.format((i+1) % 2+1))
-        env.visualize(states_in_game, 750)
+        nn = NeuralNet()
+        mcts = MCTS(env, nn, 0.5)
+        
+        state = env.generate_initial_state()
+        actions = env.get_possible_actions_from_state(state)
+
+        d2 = test_time(nn.default_policy, (actions, state, 1))
+
+
+
+        # env = Environment()
+        # s = env.generate_initial_state()
+        # print(env.game.cell_neighbours[0])
+        # print(env.game.cell_neighbours[1])
+        # print(env.game.cell_neighbours[3])
+        # print(env.game.cell_neighbours[8])
+        # # Nothing has really happened, so begin with p2
+        # p1 = 1
+        # p2 = -1
+        # env.draw_game(s)
+        # plt.show()
+        # i = 0
+        # states_in_game = []
+        # while not env.check_game_done(s):
+        #     print('****************')
+        #     player ^= (p1 ^ p2)
+        #     actions = env.get_possible_actions_from_state(s)
+        #     print('possible actions:', actions)
+        #     action = actions[0]
+        #     print('Player {} does action {}'.format(player, action))
+        #     s = env.generate_child_state_from_action(s, action, player)
+        #     states_in_game.append(s)
+        #     i += 1
+        #     env.game.print_board(s)
+        # print('Player {} won'.format((i+1) % 2+1))
+        # env.visualize(states_in_game, 750)
 
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
@@ -55,7 +64,6 @@ if __name__ == '__main__':
         save_interval = int(np.floor(G/(num_caches-1)))
         # TODO: Save parameters for starting ANET (round 0, no training has occured)
         # TODO: Clear RBUF
-        eps = epsilon
         ane = random_leaf_eval_fraction
         p1_wins = 0
         p1_start = 0
@@ -64,7 +72,7 @@ if __name__ == '__main__':
         neural_net.save_params(0)
         for j in range(G):
             env = Environment()
-            mcts = MCTS(env, neural_net, eps, ane)
+            mcts = MCTS(env, neural_net, ane)
             # RBUF with room for one example per game-move
             rbuf_X = []
             rbuf_y = []
@@ -102,8 +110,7 @@ if __name__ == '__main__':
             if visualize:
                 env.visualize(states_in_game, 500)
 
-            # Decay epsilon and anet_fraction
-            #eps *= epsilon_decay
+            # Decay anet_fraction
             ane *= random_leaf_eval_decay
 
             # TODO: Train anet on random minibatch of cases from RBUF (in method)
