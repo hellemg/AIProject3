@@ -1,7 +1,7 @@
 import numpy as np
 from Node import Node
 import random
-from GlobalConstants import epsilon_decay, grid_size
+from GlobalConstants import epsilon_decay, grid_size, p1, p2
 
 class MCTS:
     def __init__(self, env, neural_net, epsilon, random_leaf_eval_fraction):
@@ -42,14 +42,14 @@ class MCTS:
             # 4. Backprop
             self.backpropagate(leaf_node, eval_value)
             #input('...press any key to do next simulation\n\n')
-        D = np.array([visit for visit in node.N_sa.values()])/M
-        action_distributions = self.get_action_distribution(node, D)
-        return self.get_simulated_action(node, player_number), action_distributions
+        #D = np.array([visit for visit in node.N_sa.values()])/M
+        #action_distributions = self.get_action_distribution(node, D)
+        return self.get_simulated_action(node, player_number)#, action_distributions
 
     def get_action_distribution(self, node, D):
         action_distributions = np.zeros(grid_size**2)
-        for i, (r,c) in enumerate(node.N_sa.keys()):
-            action_distributions[r*grid_size+c] = D[i]
+        for i in node.N_sa.keys():
+            action_distributions[i] = D[i]
         return action_distributions
 
     def tree_policy(self, node, combine_function, arg_function, best_value):
@@ -80,7 +80,7 @@ class MCTS:
             # Get child-node with same index as best action
             node = node.children[action_index]
             # Next players turn
-            self.p_num = (self.p_num[1], self.p_num[0])
+            self.p_num = self.p_num ^ (p1 ^ p2)
         return node
 
     def expand_leaf_node(self, node):
@@ -100,7 +100,7 @@ class MCTS:
             # Add all children and actions for node
             node.set_children(edges, child_nodes)
             # Moving on to a new layer, so next players turn
-            self.p_num = (self.p_num[1], self.p_num[0])
+            self.p_num = self.p_num ^ (p1 ^ p2)
             # Set action_done to the last action, as the last child is returned
             node.set_action_done(edges[-1])
             # Returning last child node, as the value of all child_nodes as unknown
@@ -126,9 +126,9 @@ class MCTS:
             #action = self.default_policy(possible_actions, state, self.p_num, self.epsilon)
             state = self.sim_env.generate_child_state_from_action(
                 state, action, self.p_num)
-            self.p_num = (self.p_num[1], self.p_num[0])
+            self.p_num = self.p_num ^ (p1 ^ p2)
         # Player that did last move is the final player
-        final_player = (self.p_num[1], self.p_num[0])
+        final_player = self.p_num ^ (p1 ^ p2)
         eval_value = self.sim_env.get_environment_value(final_player)
         return eval_value
 
@@ -157,9 +157,9 @@ class MCTS:
             node.update(eval_value)
 
     def get_minimax_functions(self, p_num):
-        if p_num == (1,0):
+        if p_num == 1:
             return lambda x1, x2: x1+x2, lambda x1, x2: np.max((x1, x2)), float("-inf")
-        elif p_num == (0,1):
+        elif p_num == -1:
             return lambda x1, x2: x1-x2, lambda x1, x2: np.min((x1, x2)), float("inf")
         else:
             raise ValueError('Invalid player number: {}'.format(p_num))

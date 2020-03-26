@@ -1,5 +1,5 @@
 import numpy as np
-
+import timeit
 from GlobalConstants import *
 from Game import *
 from Environment import Environment
@@ -13,66 +13,46 @@ if __name__ == '__main__':
         'Test': 'Testspace',
         'M': 'MCTS',
         'T': 'TOPP',
-    }['T']
+    }['M']
 
     if Menu == 'Testspace':
+
+        # TODO: timeit for default rollout and for anet rollout. Goal: is predict slow or is my representation-changes slow
+        # NOTE: Write testing-method that takes the average time of a method
+
         print('Welcome to testspace')
         env = Environment()
-        neural_net = NeuralNet()
-        state = env.generate_initial_state()
-        state[0,2] = (1,0)
-        state[1,1] = (1,0)
-        state[1,0] = (0,1)
-        state[1,2] = (0,1)
-        print(state)
-        env.draw_game(state)
+        s = env.generate_initial_state()
+        print(env.game.cell_neighbours[0])
+        print(env.game.cell_neighbours[1])
+        print(env.game.cell_neighbours[3])
+        print(env.game.cell_neighbours[8])
+        # Nothing has really happened, so begin with p2
+        p1 = 1
+        p2 = -1
+        env.draw_game(s)
         plt.show()
-        # Wins are (2,0) and (2,1)
-
-        X = np.array([0, 0, 0, 0, 1, 0,
-                      0, 1, 1, 0, 0, 1,
-                      0, 0, 0, 0, 0, 0,
-                      1, 0]).reshape(1, 20)
-        neural_net.load_params(0)
-        pred1 = neural_net.anet.predict(X)
-        neural_net.load_params(125)
-        pred2 = neural_net.anet.predict(X)
-        neural_net.load_params(250)
-        pred3 = neural_net.anet.predict(X)
-        print(np.round(pred1,3))
-        print(np.round(pred2,3))
-        print(np.round(pred3,3))
-        print(np.sum(pred1))
-        print(np.sum(pred2))
-        print(np.sum(pred3))
-
-        # env = Environment()
-        # s = env.generate_initial_state()
-        # # Nothing has really happened, so begin with p2
-        # player = (0,1)
-        # env.game.print_board(s)
-        # actions = env.get_possible_actions_from_state(s)
-        # i = 0
-        # states_in_game = []
-        # while not env.check_game_done(s, player):
-        #     print('****************')
-        #     player = ((i+1)%2, i%2)
-        #     actions = env.get_possible_actions_from_state(s)
-        #     action = actions[0]
-        #     print('Player {} does action {}'.format(player, action))
-        #     s = env.generate_child_state_from_action(s, action, player)
-        #     states_in_game.append(s)
-        #     i += 1
-        #     #env.draw_game(s)
-        # print('Player {} won'.format((i+1)%2+1))
-        # env.visualize(states_in_game, 1000)
+        i = 0
+        states_in_game = []
+        while not env.check_game_done(s):
+            print('****************')
+            player ^= (p1 ^ p2)
+            actions = env.get_possible_actions_from_state(s)
+            print('possible actions:', actions)
+            action = actions[0]
+            print('Player {} does action {}'.format(player, action))
+            s = env.generate_child_state_from_action(s, action, player)
+            states_in_game.append(s)
+            i += 1
+            env.game.print_board(s)
+        print('Player {} won'.format((i+1) % 2+1))
+        env.visualize(states_in_game, 750)
 
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
 
         # Rounds to save parameters for ANET
         save_interval = int(np.floor(G/(num_caches-1)))
-
         # TODO: Save parameters for starting ANET (round 0, no training has occured)
         # TODO: Clear RBUF
         eps = epsilon
@@ -94,29 +74,29 @@ if __name__ == '__main__':
             state = env.generate_initial_state()
             states_in_game.append(state)
             player_number = P
-            # Player number is (1,0) for P1 and (0,1) for P2
-            p1_start += player_number[0]
+            # Player add 1 if player_number is 1 (P1 starts)
+            p1_start += player_number + 1 and 1
             while not env.check_game_done(state):
                 possible_actions = env.get_possible_actions_from_state(state)
                 # Do M simulations
-                best_action, D = mcts.simulate(player_number, M, state)
+                best_action = mcts.simulate(player_number, M, state)
 
                 # Add tuple of training example-data and target to RBUF
-                features = neural_net.convert_to_nn_input(state, player_number)
-                rbuf_X.append(features.reshape(20))
-                rbuf_y.append(D)
+                # features = neural_net.convert_to_nn_input(state, player_number)
+                # rbuf_X.append(features.reshape(10))
+                # rbuf_y.append(D)
 
                 # Do the action, get next state
                 state = env.generate_child_state_from_action(
                     state, best_action, player_number, verbose)
                 states_in_game.append(state)
                 # Next players turn
-                player_number = (player_number[1], player_number[0])
+                player_number ^= (p1 ^ p2)
             # Winner was the last player to make a move (one before player_number)
-            winner = (player_number[1], player_number[0])
+            winner = player_number ^ (p1 ^ p2)
             if verbose:
                 print('Player {} wins'.format(winner))
-            if winner == (1, 0):
+            if winner == 1:
                 p1_wins += 1
             print('*** Game {} done ***'.format(j+1))
             if visualize:
@@ -127,11 +107,11 @@ if __name__ == '__main__':
             ane *= random_leaf_eval_decay
 
             # TODO: Train anet on random minibatch of cases from RBUF (in method)
-            neural_net.train_on_rbuf(np.array(rbuf_X), np.array(rbuf_y))
+            #neural_net.train_on_rbuf(np.array(rbuf_X), np.array(rbuf_y))
 
             # j begins at 0, so add 1
-            if (j+1) % save_interval == 0:
-                neural_net.save_params(j+1)
+            # if (j+1) % save_interval == 0:
+            #     neural_net.save_params(j+1)
 
         print('Player 1 wins {} of {} games ({}%).\nPlayer 1 started {}% of the time'.format(
             p1_wins, G, p1_wins/G*100, p1_start/G*100))

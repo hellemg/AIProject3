@@ -38,7 +38,7 @@ class Node:
         self.N_sa[self.action_done] += 1
         self.Q_sa[self.action_done] = self.E_t[self.action_done] / \
             self.N_sa[self.action_done]
-        # self.print_node_values()
+        #self.print_node_values()
 
     def print_node_values(self):
         print('-N_s: {}\n-E_t: {}\n-N_sa: {}\n-Q_sa: {}'.format(self.N_s,

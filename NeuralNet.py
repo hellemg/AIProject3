@@ -52,6 +52,11 @@ class NeuralNet:
         action_probabilities = action_probabilities.reshape(grid_size, grid_size)
         scaled_predictions = []
 
+        # Board is -1, 0, 1
+        # If board is vector (9), action_probs vector of 9
+        # For each element in board, ap, if board_elem != 0 set ap = 0
+        # run softmax again to normalize or normalize in np
+
         # Keep only possible actions
         for inds in possible_actions:
             scaled_predictions.append(action_probabilities[inds])

@@ -5,25 +5,28 @@ grid_size = 3
 
 # NOTE: Player 1 is max-player
 
-verbose = False
+verbose = True
 
 visualize = False
 
 # Number of games in a batch
-G = 250
+G = 10
 
 # Number of simulations (and therefore rollouts) for each move
 M = 500
 
-# Player to start, P1: (1,0), P2: (0,1)
-P = (1, 0)
+# Player to start, P1: 1., P2: -1.
+P = 1
+# Options for player
+p1 = 1
+p2 = -1
 
 
 # ANET parameters
 lr = 0.0001
 
-# Input shape to the network, two nodes per boardcell + 2 player-nodes
-input_shape = 2*grid_size**2+2
+# Input shape to the network, one nodes per boardcell + 1 player-node
+input_shape = grid_size**2+1
 
 # Neurons per hidden layer and for the output layer
 hidden_layers = [64, 32]+[grid_size**2]
@@ -49,5 +52,5 @@ epsilon = 0.8
 epsilon_decay = 0.7
 
 # ANET vs random rollout on leaf evaluation (speed up)
-random_leaf_eval_fraction = 1
+random_leaf_eval_fraction = 0
 random_leaf_eval_decay = 1  # 0.8

@@ -18,7 +18,7 @@ class Environment:
         :param state: board, either ndarray (ledge) or int (nim)
         :param action: tuple with action to do
         """
-        return self.game.get_state_from_state_action(state, *action, player, verbose)
+        return self.game.get_state_from_state_action(state, action, player, verbose)
 
     def check_game_done(self, state):
         """
@@ -42,10 +42,12 @@ class Environment:
 
         :returns: 1 if P1 won, -1 if P2 won
         """
-        if player_num == (1,0):
+        if player_num == 1:
             return 1
-        elif player_num == (0,1):
+        elif player_num == -1:
             return -1
+        else:
+            ValueError('Invalid player number: {}'.format(player_num))
 
     def draw_game(self, state):
         # Visualize a single state
