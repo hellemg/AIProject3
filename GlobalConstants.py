@@ -10,17 +10,16 @@ verbose = True
 visualize = False
 
 # Number of games in a batch
-G = 10
+G = 100
 
 # Number of simulations (and therefore rollouts) for each move
 M = 500
 
 # Player to start, P1: 1., P2: -1.
-P = 1
+P = -1
 # Options for player
 p1 = 1
 p2 = -1
-
 
 # ANET parameters
 lr = 0.0001
@@ -47,10 +46,6 @@ num_caches = 3
 # Number of games to be played between any two ANET-agents in the TOPP
 num_games = 3
 
-# Epsilon
-epsilon = 0.8
-epsilon_decay = 0.7
-
 # ANET vs random rollout on leaf evaluation (speed up)
-random_leaf_eval_fraction = 0
+random_leaf_eval_fraction = 1
 random_leaf_eval_decay = 1  # 0.8

@@ -41,15 +41,18 @@ class MCTS:
             # 4. Backprop
             self.backpropagate(leaf_node, eval_value)
             #input('...press any key to do next simulation\n\n')
-        #D = np.array([visit for visit in node.N_sa.values()])/M
-        #action_distributions = self.get_action_distribution(node, D)
-        return self.get_simulated_action(node, player_number)#, action_distributions
+        action_distributions = self.get_action_distribution(node)
+        return self.get_simulated_action(node, player_number), action_distributions
 
-    def get_action_distribution(self, node, D):
-        action_distributions = np.zeros(grid_size**2)
-        for i in node.N_sa.keys():
-            action_distributions[i] = D[i]
+    def get_action_distribution(self, node):
+        # Returns normalized action distribution
+        action_distributions = np.zeros(len(node.name))
+        # For all possible actions, add corresponding number of times action has been taken
+        np.put(action_distributions, list(node.N_sa.keys()), list(node.N_sa.values()))
+        # Normalize
+        action_distributions /= np.sum(action_distributions)
         return action_distributions
+
 
     def tree_policy(self, node, combine_function, arg_function, best_value):
         # Using UCT to find best action in the tree

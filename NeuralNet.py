@@ -54,13 +54,15 @@ class NeuralNet:
         """
         return np.random.choice(len(scaled_predictions), p=scaled_predictions)
 
-    def train_on_rbuf(self, rbuf_X, rbuf_y):
+    def train_on_rbuf(self, rbuf_X, rbuf_y, batch_size):
         # TODO: Get random subset of rbuf for training
         """
         rbuf consists of states+players, D (distributions over actions from states)
         """
         print('...training on {} samples'.format(rbuf_X.shape[0]))
-        self.anet.fit(rbuf_X, rbuf_y, epochs=20, verbose=0)
+        self.anet.fit(rbuf_X, rbuf_y, epochs=20,
+                      verbose=1, batch_size=batch_size)
+        input('...PRESS ANY KEY TO CONTINUE...')
 
     def save_params(self, i):
         """
