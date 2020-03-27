@@ -60,9 +60,9 @@ class NeuralNet:
         rbuf consists of states+players, D (distributions over actions from states)
         """
         print('...training on {} samples'.format(rbuf_X.shape[0]))
-        self.anet.fit(rbuf_X, rbuf_y, epochs=20,
+        self.anet.fit(rbuf_X, rbuf_y, epochs=50,
                       verbose=1, batch_size=batch_size)
-        input('...PRESS ANY KEY TO CONTINUE...')
+        #input('...PRESS ANY KEY TO CONTINUE...')
 
     def save_params(self, i):
         """
