@@ -228,11 +228,18 @@ if __name__ == '__main__':
                 - Create tasks for implementing the class
 
         # NOTE: questions
-        - only train every 10th game. ok?
+        - only train every 10th game, or before saving ANET. ok?
+        - why only random amount of samples?
+        - time: batch size of 64 or 32, fyll opp fra starten i rbuf, tren etter hvert spill
+        
+
         - to get confident in edge-values, the anet needs to have enough games that increases that Q-value.
             But to get a consistent increase in (a few) Q-values, the same actions must win. 
             Doesn't that mean that the number of simuliations must be enough for one agent to consistently win?
             Resulting in only good values for the starting player (or the player that always win)
+        - strategy for parameters etc.
+        - IKKE LAGRE TRENINGSDATASETTET FOR GRIDSEARCH
+        færre simuleringen i senere spill?
 
         Default policy = behaviour policy = target policy - neural net
 
