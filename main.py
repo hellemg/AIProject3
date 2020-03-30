@@ -217,6 +217,15 @@ if __name__ == '__main__':
         - DONE: Run games project 2-style - requires clean GCs, working env
         - DONE: Add NN to rollouts (ANET)
         - Add target policy update after each actual game NOTE: only every tenth round. is that ok?
+        TODO: Gather training cases for N games. Tune NN parameters using these training cases, giving final NN to use in
+                TOPP. Play against non-trained NN. Make sure the number of simulations are appropriate:
+        TODO: Make sure number of simulations are appropriate: 
+                - Check distributions D (plt savefig for easy visual checks)
+                - Make sure win percentage of starting player is random (less than 100%)
+                This gives a NN that knows what actions to pick for a given state, but that does 
+                not know a guaranteed win situation (ex. of guaranteed: 500 simulations on 3x3 board)
+        TODO: Create tournament-class. 
+                - Create tasks for implementing the class
 
         # NOTE: questions
         - only train every 10th game. ok?
