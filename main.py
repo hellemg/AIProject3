@@ -169,4 +169,5 @@ if __name__ == '__main__':
         - time: batch size of 64 or 32, fyll opp fra starten i rbuf, tren etter hvert spill
         - anets are insecure to begin with (too large search-space to simulate to the end), but get more secure
             as the game gets closer to an end
+        - ALTERNATE STARTING PLAYER WHEN PLAYING GAMES TO TRAIN ANETS?
         """
