@@ -16,7 +16,7 @@ G = 250
 # Number of simulations (and therefore rollouts) for each move
 M = 500
 
-# Player to start, P1: 1., P2: -1.
+# Player to start, P1: 1, P2: -1
 P = -1
 # Options for player
 p1 = 1
@@ -47,8 +47,8 @@ optimizer = {'adam': Adam(learning_rate=lr),
 # Number of ANETs to be cached for a TOPP - starting with an untrained net prior to episode 1
 num_caches = 3
 
-# Number of games to be played between any two ANET-agents in the TOPP
-num_games = 10
+# Number of games to be played between any two ANET-agents in the TOPP. Should be even for fairness
+num_games = 4
 
 # ANET vs random rollout on leaf evaluation (speed up)
 random_leaf_eval_fraction = 1

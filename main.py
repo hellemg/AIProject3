@@ -6,6 +6,7 @@ from Environment import Environment
 from MCTS import MCTS
 from NeuralNet import NeuralNet
 from utils import test_time
+from TOPP import TOPP
 
 import matplotlib.pyplot as plt
 
@@ -128,8 +129,6 @@ if __name__ == '__main__':
             if (j+1) % save_interval == 0:
                 neural_net.save_params((j+1)*10)
 
-            # NOTE: i: adam, lr = 0.001, 20 epochs
-            # NOTE: i*10: adam, lr = 0.001, 50 epochs
 
         print('Player 1 wins {} of {} games ({}%).\nPlayer 1 started {}% of the time'.format(
             p1_wins, G, p1_wins/G*100, p1_start/G*100))
@@ -139,117 +138,35 @@ if __name__ == '__main__':
 
         agents = []
 
-        # TODO: Rank agents after how many total games they win
-
-        env = Environment()
-        state = env.generate_initial_state()
-        state[2] = 1
-        state[1] = 1
-        state[4] = -1
-        state[3] = -1
-
-        features = np.append(state, -1).reshape((1, 10))
-
-        for i in [0, 250]:  # np.linspace(0, G, num_caches, dtype=int):
+        # NOTE: i: adam, lr = 0.001, 20 epochs
+        # NOTE: i*10: adam, lr = 0.001, 50 epochs
+        for i in [0, 125, 250]:  # np.linspace(0, G, num_caches, dtype=int):
             print('...fetching agent ', i)
-            # TODO: Create agent for each saved parameters-file. Need Agent-class
-            # New suggestion: give ANETS states and get back action-probabilities. Create agents that have choose_action_method
-            # a = 'agent'+str(i+1)
             a = NeuralNet()
-            a.load_params(i*10)
+            a.load_params(i)
             a.anet._name = 'ANET_'+str(i)
             agents.append(a)
-            print(a.anet.predict(features))
 
-        # NOTE: predicts p2 quite well, p2 started in simulations and always won. Could have problems predicting p1, as p1 never wins in the simulations
-
-        # TODO: TOPP agents should have name, default action-method, player-number (set for each series)
-        # TODO: Each game in a series the starting player will alternate
-
-        # env.draw_game(state)
-        # plt.show()
-
-        for i in range(len(agents)):
-            # Each agent plays against all agents after it in the list `agents`
-            first_agent = agents[i]
-            for j in range(i+1, len(agents)):
-                second_agent = agents[j]
-                print('TOURNAMENT BETWEEN: ', first_agent.anet._name,
-                      second_agent.anet._name)
-                print('...play {} games'.format(num_games))
-                first_agent_wins = 0
-                first_agent_starts = 0
-                start_player = -1
-                for i in range(num_games):
-                    #start_player ^= (p1 ^ p2)
-                    # first_agent = 1, second_agent = -1
-                    if start_player == 1:
-                        first_agent_starts += 1
-                    state = env.generate_initial_state()
-                    states_in_game = []
-                    current_player = start_player
-                    while not env.check_game_done(state):
-                        # Get possible actions
-                        possible_actions = env.get_possible_actions_from_state(
-                            state)
-                        # Find best action for current player
-                        best_action = {1: first_agent.default_policy(possible_actions, state, current_player),
-                                       -1: second_agent.default_policy(possible_actions, state, current_player)}[current_player]
-                        # Do the action, get next state
-                        state = env.generate_child_state_from_action(
-                            state, best_action, current_player, True)
-                        states_in_game.append(state)
-                        # Next players turn
-                        current_player ^= (p1 ^ p2)
-                    # Winner was the last player to make a move (one before player)
-                    winner = current_player ^ (p1 ^ p2)
-                    if winner == 1:
-                        first_agent_wins += 1
-                    print('*** Game {} done ***: Player {} wins'.format(i+1, winner))
-                    if visualize:
-                        env.visualize(states_in_game, 500)
-
-                print('{} won {} of {} games ({}%).'.format(
-                    first_agent.anet._name, first_agent_wins, num_games, np.round(first_agent_wins/num_games*100, 2)))
+        topp = TOPP(agents)
+        topp.tournament()
 
         """
-
+        TODO:
         - DONE: Run games project 2-style - requires clean GCs, working env
         - DONE: Add NN to rollouts (ANET)
-        - Add target policy update after each actual game NOTE: only every tenth round. is that ok?
-        TODO: Gather training cases for N games. Tune NN parameters using these training cases, giving final NN to use in
-                TOPP. Play against non-trained NN. Make sure the number of simulations are appropriate:
-        TODO: Make sure number of simulations are appropriate: 
-                - Check distributions D (plt savefig for easy visual checks)
-                - Make sure win percentage of starting player is random (less than 100%)
-                This gives a NN that knows what actions to pick for a given state, but that does 
-                not know a guaranteed win situation (ex. of guaranteed: 500 simulations on 3x3 board)
-        TODO: Create tournament-class. 
-                - Create tasks for implementing the class
+        - Add target policy update after each actual game (train NN)
+        - Make list of architectual choices to try and train the network on
+            - Send as input to NN, not from GC (just when testing this, use GC else)
+            - Save each M trained anets with different names for different architectures
+            - Decide how to measure success
+            - Save success-measurement with each agent
+            - Run small test to ensure it works
+            - Run large test overnight: 5x5 board, 4 ANETS, minimum 200 episodes (Try 1000 simulations)
+            - Log all results
+            - Choose one architecture
 
         # NOTE: questions
-        - only train every 10th game, or before saving ANET. ok?
-        - why only random amount of samples?
         - time: batch size of 64 or 32, fyll opp fra starten i rbuf, tren etter hvert spill
-        
-
-        - to get confident in edge-values, the anet needs to have enough games that increases that Q-value.
-            But to get a consistent increase in (a few) Q-values, the same actions must win. 
-            Doesn't that mean that the number of simuliations must be enough for one agent to consistently win?
-            Resulting in only good values for the starting player (or the player that always win)
-        - strategy for parameters etc.
-        - IKKE LAGRE TRENINGSDATASETTET FOR GRIDSEARCH
-        færre simuleringen i senere spill?
-
-        Default policy = behaviour policy = target policy - neural net
-
-        Neural net:
-        - input is a board state, output is a probability distribution over all possble moves (from the input state)
-        - to create an intelligent target policy that can be used without MCTS
-
-        RL Procedure:
-        1. Making moves in the actual game, each game is an episode
-        2. Making moves in simulated game (search moves), each simulated game is a search game
-        3. Update target policy with supervised learning, training cases are from visit counts of arcs in the MC tree (updates happen
-            at the end of an actual game)
+        - anets are insecure to begin with (too large search-space to simulate to the end), but get more secure
+            as the game gets closer to an end
         """

@@ -5,7 +5,7 @@ from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras import Model
 from utils import test_time
 
-from GlobalConstants import hidden_layers, activations, lr, optimizer, input_shape, grid_size
+from GlobalConstants import hidden_layers, activations, optimizer, input_shape
 
 
 class NeuralNet:
