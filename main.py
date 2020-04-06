@@ -15,7 +15,7 @@ if __name__ == '__main__':
         'Test': 'Testspace',
         'M': 'MCTS',
         'T': 'TOPP',
-    }['M']
+    }['T']
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
@@ -122,10 +122,14 @@ if __name__ == '__main__':
 
         # NOTE: i: adam, lr = 0.001, 20 epochs
         # NOTE: i*10: adam, lr = 0.001, 50 epochs
-        for i in [0, 125, 250]:  # np.linspace(0, G, num_caches, dtype=int):
+        a=NeuralNet()
+        a.load_params('./NoNN/save_{}'.format(0))
+        a.anet._name='ANET_'+str(0)
+        agents.append(a)
+        for i in [70, 140, 210]:  # np.linspace(0, G, num_caches, dtype=int):
             print('...fetching agent ', i)
             a=NeuralNet()
-            a.load_params(i)
+            a.load_params('./NoNN/save_grid_size_3_game_{}'.format(i))
             a.anet._name='ANET_'+str(i)
             agents.append(a)
 
