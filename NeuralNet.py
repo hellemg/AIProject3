@@ -19,6 +19,7 @@ class NeuralNet:
             x = Dense(layer, activation=activation)(x)
         self.anet = Model(input_layer, x)
         self.anet._name = 'ANET'
+        self.history = []
 
         # Compile model
         self.anet.compile(optimizer=optimizer,
@@ -59,8 +60,9 @@ class NeuralNet:
         rbuf consists of states+players, D (distributions over actions from states)
         """
         print('...training on {} samples'.format(train_X.shape[0]))
-        self.anet.fit(train_X, train_y, epochs=20,
-                      verbose=1, batch_size=batch_size)
+        history = self.anet.fit(train_X, train_y, epochs=20,
+                      verbose=0, batch_size=batch_size)
+        self.history.append(history)
         #input('...PRESS ANY KEY TO CONTINUE...')
 
     def save_params(self, i):

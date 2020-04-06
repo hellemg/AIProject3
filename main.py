@@ -84,17 +84,17 @@ if __name__ == '__main__':
             if visualize:
                 env.visualize(states_in_game, 500)
 
-            # Decay anet_fraction
-            ane *= random_leaf_eval_decay
 
             # Do not train until the rbuf has filled up to batch size
             # After the rbuf has filled to batch size the first time, train after every game
-            if i >= batch_size:
+            if i >= batch_size and train == False:
+                # Turn on leaf evaluation with anet (one time)
+                print('...evaluating leaf nodes with ANET')
+                ane = random_leaf_eval_fraction
+                # Turn on training of anet
                 print(
                     '...turning on training, there are now {} examples to train on'.format(i))
                 train = True
-                print('...evaluating leaf nodes with ANET')
-                ane = random_leaf_eval_fraction
 
 
             # Train the neural net
@@ -105,6 +105,8 @@ if __name__ == '__main__':
                 train_X = rbuf_X[random_rows].astype(float)
                 train_y = rbuf_y[random_rows].astype(float)
                 neural_net.train_on_rbuf(train_X, train_y, batch_size)
+                # Decay anet_fraction
+                ane *= random_leaf_eval_decay
 
             # j begins at 0, so add 1
             if (j+1) % save_interval == 0:
