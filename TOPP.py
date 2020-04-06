@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from Environment import Environment
-from GlobalConstants import p1, p2, num_games, visualize
+from GlobalConstants import p1, p2, num_games, visualize, grid_size
 
 
 class TOPP:
@@ -47,7 +47,7 @@ class TOPP:
 
         :returns: int, 1 or -1: winner of the game
         """
-        env = Environment()
+        env = Environment(grid_size)
         state = env.generate_initial_state()
         states_in_game = []
         current_player = starting_player
