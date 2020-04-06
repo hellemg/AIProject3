@@ -1,15 +1,8 @@
-"""
-Finally, in a post-training tournament, D might be used in a purely greedy fashion: the move with the highest probability is always
-chosen. This mirrors the general philosophy that the final target policy should follow a much more
-exploitative than exploratory strategy. However, you may also continue to use it in an epsilon-greedy fashion or even
-in a purely probabilistic manner, where moves are chosen stochastically based on the probabilities in D. Finding the
-best such strategy may require a good deal of experimentation
-"""
 import numpy as np
 import matplotlib.pyplot as plt
 
 from Environment import Environment
-from GlobalConstants import p1, p2, num_games, visualize, grid_size
+from GlobalConstants import P, p1, p2, num_games, visualize, grid_size
 
 
 class TOPP:
@@ -75,10 +68,8 @@ class TOPP:
         player_one: NeuralNet
         player_two: NeuralNet
         """
-        # Player 1 always starts the series
-        # 1: player_one
-        # -1: player_two
-        starting_player = 1
+        # Player that has been trained to start always starts the series
+        starting_player = P
         player_names = {1: player_one.anet._name, -1: player_two.anet._name}
         for i in range(num_games):
             print('*** PLAYOFF BETWEEN {} AS Player 1 AND {} AS Player -1'.format(player_names[1], player_names[-1]))
