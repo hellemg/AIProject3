@@ -14,7 +14,7 @@ visualize = False
 is_live_demo = False
 
 # Number of games in a batch
-G = 210
+G = 91
 
 # Number of simulations (and therefore rollouts) for each move
 M = 500
@@ -53,5 +53,5 @@ num_caches = 4
 num_games = 4
 
 # ANET vs random rollout on leaf evaluation (speed up)
-random_leaf_eval_fraction = 0.96
-random_leaf_eval_decay =  0.8
+random_leaf_eval_fraction = 1
+random_leaf_eval_decay =  1

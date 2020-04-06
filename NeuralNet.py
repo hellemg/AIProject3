@@ -59,7 +59,7 @@ class NeuralNet:
         """
         rbuf consists of states+players, D (distributions over actions from states)
         """
-        print('...training on {} samples'.format(train_X.shape[0]))
+        #print('...training on {} samples'.format(train_X.shape[0]))
         history = self.anet.fit(train_X, train_y, epochs=20,
                       verbose=0, batch_size=batch_size)
         self.history.append(history)
@@ -78,10 +78,10 @@ class NeuralNet:
         self.anet.save_weights('./checkpoints/save_{}'.format(i))
         print('...parameters for round {} have been saved to file'.format(i))
 
-    def load_params(self, i):
+    def load_params(self, path):
         """
         Load weights and biases from file to the network
 
         :param i: str, grid_size and round the params have been saved 
         """
-        self.anet.load_weights('./checkpoints/save_{}'.format(i))
+        self.anet.load_weights(path)
