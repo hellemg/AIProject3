@@ -7,6 +7,7 @@ from MCTS import MCTS
 from NeuralNet import NeuralNet
 from utils import test_time
 from TOPP import TOPP
+from BasicClientActor import BasicClientActor
 
 import matplotlib.pyplot as plt
 
@@ -15,10 +16,14 @@ if __name__ == '__main__':
         'Test': 'Testspace',
         'M': 'MCTS',
         'T': 'TOPP',
-    }['M']
+    }['Test']
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
+
+        bca = BasicClientActor()
+        bca.connect_to_server()
+
 
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
@@ -29,7 +34,7 @@ if __name__ == '__main__':
         ane = 1
         p1_wins = 0
         p1_start = 0
-        neural_net = NeuralNet()
+        neural_net = NeuralNet(grid_size**2+1)
 
         # List of training-data, rbuf_size x features
         rbuf_X = np.empty((1000, input_shape), dtype=np.ndarray)
@@ -45,7 +50,7 @@ if __name__ == '__main__':
         # Save model before training
         neural_net.save_params(0)
         for j in range(G):
-            env = Environment()
+            env = Environment(grid_size)
             mcts = MCTS(env, neural_net, ane)
             print('...using {}% ANET evaluation'.format(
                 np.round((1-ane)*100, 3)))
@@ -124,7 +129,7 @@ if __name__ == '__main__':
         # NOTE: i*10: adam, lr = 0.001, 50 epochs
         for i in [0, 125, 250]:  # np.linspace(0, G, num_caches, dtype=int):
             print('...fetching agent ', i)
-            a=NeuralNet()
+            a=NeuralNet(grid_size**2+1)
             a.load_params(i)
             a.anet._name='ANET_'+str(i)
             agents.append(a)
