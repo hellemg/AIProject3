@@ -7,7 +7,7 @@ from MCTS import MCTS
 from NeuralNet import NeuralNet
 from utils import test_time
 from TOPP import TOPP
-from BasicClientActor import BasicClientActor
+#from Client_side import BasicClientActor
 
 import matplotlib.pyplot as plt
 
@@ -16,13 +16,13 @@ if __name__ == '__main__':
         'Test': 'Testspace',
         'M': 'MCTS',
         'T': 'TOPP',
-    }['M']
+    }['T']
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
 
-        bca = BasicClientActor()
-        bca.connect_to_server()
+        # bca = BasicClientActor()
+        # bca.connect_to_server()
 
 
     elif Menu == 'MCTS':
@@ -132,13 +132,13 @@ if __name__ == '__main__':
         # NOTE: i: adam, lr = 0.001, 20 epochs
         # NOTE: i*10: adam, lr = 0.001, 50 epochs
         a=NeuralNet(input_shape)
-        a.load_params('./NoNN/save_{}'.format(0))
+        a.load_params('./checkpoints/save_{}'.format(0))
         a.anet._name='ANET_'+str(0)
         agents.append(a)
-        for i in [70, 140, 210]:  # np.linspace(0, G, num_caches, dtype=int):
+        for i in [125, 250]:  # np.linspace(0, G, num_caches, dtype=int):
             print('...fetching agent ', i)
             a=NeuralNet(input_shape)
-            a.load_params('./NoNN/save_grid_size_3_game_{}'.format(i))
+            a.load_params('./checkpoints/save_{}'.format(i))
             a.anet._name='ANET_'+str(i)
             agents.append(a)
 
