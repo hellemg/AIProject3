@@ -62,6 +62,7 @@ if __name__ == '__main__':
             # Player add 1 if player_number is 1 (P1 starts)
             p1_start += player_number + 1 and 1
             while not env.check_game_done(state):
+                print('....begin move')
                 possible_actions = env.get_possible_actions_from_state(state)
                 # Do M simulations
                 best_action, D = mcts.simulate(player_number, M, state)
@@ -78,6 +79,7 @@ if __name__ == '__main__':
                 state = env.generate_child_state_from_action(
                     state, best_action, player_number, verbose)
                 states_in_game.append(state)
+                print('....end move')
                 # Next players turn
                 player_number ^= (p1 ^ p2)
             # Winner was the last player to make a move (one before player_number)
@@ -104,6 +106,7 @@ if __name__ == '__main__':
 
             # Train the neural net
             if train:
+                print('...before train')
                 filled_rows_lenght = rbuf_X[(rbuf_X != np.array(None)).any(axis=1)].shape[0]
                 random_rows = np.random.choice(filled_rows_lenght, batch_size, replace=False)
                 # Get the same rows from X and y
@@ -112,6 +115,7 @@ if __name__ == '__main__':
                 neural_net.train_on_rbuf(train_X, train_y, batch_size)
                 # Decay anet_fraction
                 ane *= random_leaf_eval_decay
+                print('...after train')
 
             # j begins at 0, so add 1
             if (j+1) % save_interval == 0:
@@ -127,13 +131,13 @@ if __name__ == '__main__':
 
         # NOTE: i: adam, lr = 0.001, 20 epochs
         # NOTE: i*10: adam, lr = 0.001, 50 epochs
-        a=NeuralNet()
+        a=NeuralNet(input_shape)
         a.load_params('./NoNN/save_{}'.format(0))
         a.anet._name='ANET_'+str(0)
         agents.append(a)
         for i in [70, 140, 210]:  # np.linspace(0, G, num_caches, dtype=int):
             print('...fetching agent ', i)
-            a=NeuralNet()
+            a=NeuralNet(input_shape)
             a.load_params('./NoNN/save_grid_size_3_game_{}'.format(i))
             a.anet._name='ANET_'+str(i)
             agents.append(a)
@@ -145,7 +149,8 @@ if __name__ == '__main__':
         TODO:
         - DONE: Run games project 2-style - requires clean GCs, working env
         - DONE: Add NN to rollouts (ANET)
-        - Add target policy update after each actual game (train NN)
+        - DONE: Add target policy update after each actual game (train NN)
+        - Debug why it stops at beginning of round 46
         - Make list of architectual choices to try and train the network on
             - Send as input to NN, not from GC (just when testing this, use GC else)
             - Save each M trained anets with different names for different architectures
@@ -156,9 +161,7 @@ if __name__ == '__main__':
             - Log all results
             - Choose one architecture
 
-        # NOTE: questions
-        - time: batch size of 64 or 32, fyll opp fra starten i rbuf, tren etter hvert spill
+        # NOTE:
         - anets are insecure to begin with (too large search-space to simulate to the end), but get more secure
             as the game gets closer to an end
-        - ALTERNATE STARTING PLAYER WHEN PLAYING GAMES TO TRAIN ANETS?
         """

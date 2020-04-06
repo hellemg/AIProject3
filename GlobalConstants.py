@@ -53,5 +53,5 @@ num_caches = 4
 num_games = 4
 
 # ANET vs random rollout on leaf evaluation (speed up)
-random_leaf_eval_fraction = 0.9
+random_leaf_eval_fraction = 0
 random_leaf_eval_decay =  0.8
