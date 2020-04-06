@@ -7,7 +7,7 @@ from MCTS import MCTS
 from NeuralNet import NeuralNet
 from utils import test_time
 from TOPP import TOPP
-from BasicClientActor import BasicClientActor
+from Client_side import BasicClientActor
 
 import matplotlib.pyplot as plt
 
