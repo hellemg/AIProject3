@@ -16,7 +16,7 @@ if __name__ == '__main__':
         'Test': 'Testspace',
         'M': 'MCTS',
         'T': 'TOPP',
-    }['Test']
+    }['M']
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
