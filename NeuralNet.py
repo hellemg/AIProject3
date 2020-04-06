@@ -23,7 +23,7 @@ class NeuralNet:
 
         # Compile model
         self.anet.compile(optimizer=optimizer,
-                          loss='categorical_crossentropy', metrics=['accuracy'])
+                          loss='mean_squared_error', metrics=['accuracy'])
         # self.anet.summary()
         # input()
 
@@ -60,7 +60,7 @@ class NeuralNet:
         rbuf consists of states+players, D (distributions over actions from states)
         """
         #print('...training on {} samples'.format(train_X.shape[0]))
-        history = self.anet.fit(train_X, train_y, epochs=5,
+        history = self.anet.fit(train_X, train_y, epochs=20,
                       verbose=0, batch_size=batch_size)
         self.history.append(history)
         #input('...PRESS ANY KEY TO CONTINUE...')
