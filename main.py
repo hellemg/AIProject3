@@ -25,7 +25,8 @@ if __name__ == '__main__':
 
         # Rounds to save parameters for ANET
         save_interval = int(np.floor(G/(num_caches-1)))
-        ane = random_leaf_eval_fraction
+        # Only use random leaf evaluation before the first training has happened
+        ane = 1
         p1_wins = 0
         p1_start = 0
         neural_net = NeuralNet()
@@ -84,7 +85,7 @@ if __name__ == '__main__':
                 env.visualize(states_in_game, 500)
 
             # Decay anet_fraction
-            # ane *= random_leaf_eval_decay
+            ane *= random_leaf_eval_decay
 
             # Do not train until the rbuf has filled up to batch size
             # After the rbuf has filled to batch size the first time, train after every game
@@ -93,7 +94,7 @@ if __name__ == '__main__':
                     '...turning on training, there are now {} examples to train on'.format(i))
                 train = True
                 print('...evaluating leaf nodes with ANET')
-                ane = 0
+                ane = random_leaf_eval_fraction
 
 
             # Train the neural net
