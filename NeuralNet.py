@@ -37,7 +37,7 @@ class NeuralNet:
         :returns: tuple, action
         """
         features = np.append(state, player).reshape((1, len(state)+1))
-        action_probabilities = self.anet.predict(features)
+        action_probabilities = self.anet(features)
         action_probabilities = self.scale_actions(state, action_probabilities)
         return self.get_action(action_probabilities)
 
