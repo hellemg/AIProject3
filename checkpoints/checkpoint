@@ -1,2 +1,2 @@
-model_checkpoint_path: "save_2500"
-all_model_checkpoint_paths: "save_2500"
+model_checkpoint_path: "save_0"
+all_model_checkpoint_paths: "save_0"

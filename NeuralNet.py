@@ -5,7 +5,7 @@ from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras import Model
 from utils import test_time
 
-from GlobalConstants import hidden_layers, activations, optimizer, input_shape
+from GlobalConstants import hidden_layers, activations, optimizer, input_shape, is_live_demo
 
 
 class NeuralNet:
@@ -54,13 +54,12 @@ class NeuralNet:
         """
         return np.random.choice(len(scaled_predictions), p=scaled_predictions)
 
-    def train_on_rbuf(self, rbuf_X, rbuf_y, batch_size):
-        # TODO: Get random subset of rbuf for training
+    def train_on_rbuf(self, train_X, train_y, batch_size):
         """
         rbuf consists of states+players, D (distributions over actions from states)
         """
-        print('...training on {} samples'.format(rbuf_X.shape[0]))
-        self.anet.fit(rbuf_X, rbuf_y, epochs=50,
+        print('...training on {} samples'.format(train_X.shape[0]))
+        self.anet.fit(train_X, train_y, epochs=20,
                       verbose=1, batch_size=batch_size)
         #input('...PRESS ANY KEY TO CONTINUE...')
 
@@ -68,10 +67,12 @@ class NeuralNet:
         """
         Saves weights and biases of network to file
 
-        :param i: int, round the params have been saved (becomes part of the filename)
+        :param i: str, grid_size and round the params have been saved 
 
         https://www.tensorflow.org/tutorials/keras/save_and_load
         """
+        if is_live_demo:
+            i += '_LIVE'
         self.anet.save_weights('./checkpoints/save_{}'.format(i))
         print('...parameters for round {} have been saved to file'.format(i))
 
@@ -79,6 +80,6 @@ class NeuralNet:
         """
         Load weights and biases from file to the network
 
-        :param i: int, round the params have been saved 
+        :param i: str, grid_size and round the params have been saved 
         """
         self.anet.load_weights('./checkpoints/save_{}'.format(i))
