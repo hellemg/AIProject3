@@ -82,13 +82,16 @@ class TOPP:
             print('...{} wins game '.format(winner_name, i+1))
 
             # Alternate between who is starting player in self.play_one_game(starting_player: int, player_one, player_two)
-            starting_player ^= (p1 ^ p2)
+            #starting_player ^= (p1 ^ p2)
 
     def tournament(self):
         num = 0
         for i in range(len(self.players)):
             for j in range(i+1, len(self.players)):
                 self.play_one_serie(self.players[i], self.players[j])
+                print('Scores after this series:\n{}'.format(self.scores))
+                num += 1
+                self.play_one_serie(self.players[j], self.players[i])
                 print('Scores after this series:\n{}'.format(self.scores))
                 num += 1
 

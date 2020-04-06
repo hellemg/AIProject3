@@ -14,7 +14,7 @@ visualize = False
 is_live_demo = False
 
 # Number of games in a batch
-G = 91
+G = 60
 
 # Number of simulations (and therefore rollouts) for each move
 M = 500
@@ -50,8 +50,8 @@ optimizer = {'adam': Adam(learning_rate=lr),
 num_caches = 4
 
 # Number of games to be played between any two ANET-agents in the TOPP. Should be even for fairness
-num_games = 4
+num_games = 10
 
 # ANET vs random rollout on leaf evaluation (speed up)
-random_leaf_eval_fraction = 0
+random_leaf_eval_fraction = 0.96
 random_leaf_eval_decay =  0.8
