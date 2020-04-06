@@ -5,11 +5,11 @@ from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras import Model
 from utils import test_time
 
-from GlobalConstants import hidden_layers, activations, optimizer, input_shape, is_live_demo
+from GlobalConstants import hidden_layers, activations, optimizer, is_live_demo
 
 
 class NeuralNet:
-    def __init__(self):
+    def __init__(self, input_shape):
         input_layer = Input(shape=input_shape)
         # Define architecture
         x = input_layer

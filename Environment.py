@@ -1,12 +1,11 @@
 from Game import Nim, Ledge
 from Board import Board
-from GlobalConstants import *
 import matplotlib.animation
 import matplotlib.pyplot as plt
 
 
 class Environment:
-    def __init__(self):
+    def __init__(self, grid_size):
         # Game type: nim or ledge
         self.game = Board(grid_size)
   
