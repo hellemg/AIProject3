@@ -1,2 +1,2 @@
-model_checkpoint_path: "save_grid_size_3_game_30"
-all_model_checkpoint_paths: "save_grid_size_3_game_30"
+model_checkpoint_path: "save_grid_size_5_msegame_210"
+all_model_checkpoint_paths: "save_grid_size_5_msegame_210"
