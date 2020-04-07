@@ -134,16 +134,12 @@ if __name__ == '__main__':
 
         # NOTE: i: adam, lr = 0.001, 20 epochs
         # NOTE: i*10: adam, lr = 0.001, 50 epochs
-        a=NeuralNet(input_shape)
-        a.load_params('./checkpoints/save_{}'.format(0))
-        a.anet._name='ANET_'+str(0)
-        agents.append(a)
-        print(a.anet(features))
-
-        for i in [20, 40, 60]:  # np.linspace(0, G, num_caches, dtype=int):
+        # np.linspace(0, G, num_caches, dtype=int):
+        for i in [0, 70, 140, 210]:
             print('...fetching agent ', i)
             a = NeuralNet(input_shape)
-            a.load_params('./checkpoints/save_grid_size_{}_game_{}'.format(grid_size, i))
+            a.load_params(
+                './checkpoints/save_grid_size_{}_game_{}'.format(grid_size, i))
             a.anet._name = 'ANET_'+str(i)
             agents.append(a)
 
@@ -154,12 +150,12 @@ if __name__ == '__main__':
         p2_moves = np.array([2, 6])
         p1_moves = np.array([4, 7])
 
-        # 7 is a winning move
         state[p2_moves] = -1
         state[p1_moves] = 1
+        # 6 is win for p1
+        state = np.array([0,  1, -1,  1,  1, -1,  0,  1, -1,  1,
+                          1, -1, -1, -1, -1,  1,  1,  1, -1, -1,  1,  0,  1, -1, -1])
         features = np.append(state, P).reshape((1, len(state)+1))
-        env.draw_game(state)
-        plt.show()
 
         for i in range(1):
             for a in agents:
@@ -167,6 +163,9 @@ if __name__ == '__main__':
                 print(a.anet(features))
                 print(a.default_policy([], state, 1))
             env.draw_game(state)
+        env.draw_game(state)
+        plt.show()
+
         topp = TOPP(agents)
         topp.tournament()
 
@@ -185,7 +184,9 @@ if __name__ == '__main__':
             - Run large test overnight: 5x5 board, 4 ANETS, minimum 200 episodes (Try 1000 simulations)
             - Log all results
             - Choose one architecture
-        - Change state in TOPP as done in BCA
+        - Change state in TOPP as done in BCA. Or just play two rounds
+        - Test this code with 3x3
+        - Run larger simulation
 
         # NOTE:
         - anets are insecure to begin with (too large search-space to simulate to the end), but get more secure

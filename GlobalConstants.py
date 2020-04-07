@@ -4,7 +4,7 @@ from tensorflow.keras.optimizers import Adagrad, Adam, SGD, RMSprop
 # NOTE: Player 1 is max-player
 
 # Hex game
-grid_size = 3
+grid_size = 5
 
 verbose = False
 

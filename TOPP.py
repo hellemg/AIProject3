@@ -53,7 +53,7 @@ class TOPP:
                            -1: player_two.default_policy(possible_actions, state, current_player)}[current_player]
             # Do the action, get next state
             state = env.generate_child_state_from_action(
-                state, best_action, current_player, True)
+                state, best_action, current_player, False)
             states_in_game.append(state)
             # Next players turn
             current_player ^= (p1 ^ p2)
