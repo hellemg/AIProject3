@@ -24,7 +24,6 @@ if __name__ == '__main__':
         # bca = BasicClientActor()
         # bca.connect_to_server()
 
-
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
 
@@ -91,7 +90,6 @@ if __name__ == '__main__':
             if visualize:
                 env.visualize(states_in_game, 500)
 
-
             # Do not train until the rbuf has filled up to batch size
             # After the rbuf has filled to batch size the first time, train after every game
             if i >= batch_size and train == False:
@@ -103,12 +101,13 @@ if __name__ == '__main__':
                     '...turning on training, there are now {} examples to train on'.format(i))
                 train = True
 
-
             # Train the neural net
             if train:
                 print('...before train')
-                filled_rows_lenght = rbuf_X[(rbuf_X != np.array(None)).any(axis=1)].shape[0]
-                random_rows = np.random.choice(filled_rows_lenght, batch_size, replace=False)
+                filled_rows_lenght = rbuf_X[(
+                    rbuf_X != np.array(None)).any(axis=1)].shape[0]
+                random_rows = np.random.choice(
+                    filled_rows_lenght, batch_size, replace=False)
                 # Get the same rows from X and y
                 train_X = rbuf_X[random_rows].astype(float)
                 train_y = rbuf_y[random_rows].astype(float)
@@ -119,7 +118,8 @@ if __name__ == '__main__':
 
             # j begins at 0, so add 1
             if (j+1) % save_interval == 0:
-                neural_net.save_params('grid_size_{}_game_{}'.format(grid_size, (j+1)))
+                neural_net.save_params(
+                    'grid_size_{}_game_{}'.format(grid_size, (j+1)))
 
         print('Player 1 wins {} of {} games ({}%).\nPlayer 1 started {}% of the time'.format(
             p1_wins, G, p1_wins/G*100, p1_start/G*100))
@@ -127,7 +127,10 @@ if __name__ == '__main__':
     elif Menu == 'TOPP':
         print('******* WELCOME TO THE TOURNAMENT *******')
 
-        agents=[]
+        agents = []
+        env = Environment(grid_size)
+        state = env.generate_initial_state()
+        features = np.append(state, P).reshape((1, len(state)+1))
 
         # NOTE: i: adam, lr = 0.001, 20 epochs
         # NOTE: i*10: adam, lr = 0.001, 50 epochs
@@ -135,14 +138,36 @@ if __name__ == '__main__':
         a.load_params('./checkpoints/save_{}'.format(0))
         a.anet._name='ANET_'+str(0)
         agents.append(a)
-        for i in [125, 250]:  # np.linspace(0, G, num_caches, dtype=int):
+        print(a.anet(features))
+
+        for i in [20, 40, 60]:  # np.linspace(0, G, num_caches, dtype=int):
             print('...fetching agent ', i)
-            a=NeuralNet(input_shape)
-            a.load_params('./checkpoints/save_{}'.format(i))
-            a.anet._name='ANET_'+str(i)
+            a = NeuralNet(input_shape)
+            a.load_params('./checkpoints/save_grid_size_{}_game_{}'.format(grid_size, i))
+            a.anet._name = 'ANET_'+str(i)
             agents.append(a)
 
-        topp=TOPP(agents)
+            print(a.anet(features))
+
+        p2_moves = np.array([1, 4, 5])
+        p1_moves = np.array([2, 3, 6])
+        p2_moves = np.array([2, 6])
+        p1_moves = np.array([4, 7])
+
+        # 7 is a winning move
+        state[p2_moves] = -1
+        state[p1_moves] = 1
+        features = np.append(state, P).reshape((1, len(state)+1))
+        env.draw_game(state)
+        plt.show()
+
+        for i in range(1):
+            for a in agents:
+                print('.....', a.anet._name)
+                print(a.anet(features))
+                print(a.default_policy([], state, 1))
+            env.draw_game(state)
+        topp = TOPP(agents)
         topp.tournament()
 
         """
@@ -150,7 +175,7 @@ if __name__ == '__main__':
         - DONE: Run games project 2-style - requires clean GCs, working env
         - DONE: Add NN to rollouts (ANET)
         - DONE: Add target policy update after each actual game (train NN)
-        - Debug why it stops at beginning of round 46
+        - Debug why it stops at beginning of round 46 (VSCODE STUFF?)
         - Make list of architectual choices to try and train the network on
             - Send as input to NN, not from GC (just when testing this, use GC else)
             - Save each M trained anets with different names for different architectures
@@ -160,6 +185,7 @@ if __name__ == '__main__':
             - Run large test overnight: 5x5 board, 4 ANETS, minimum 200 episodes (Try 1000 simulations)
             - Log all results
             - Choose one architecture
+        - Change state in TOPP as done in BCA
 
         # NOTE:
         - anets are insecure to begin with (too large search-space to simulate to the end), but get more secure
