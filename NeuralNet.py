@@ -5,7 +5,7 @@ from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras import Model
 from utils import test_time
 
-from GlobalConstants import hidden_layers, activations, optimizer, is_live_demo
+from GlobalConstants import hidden_layers, activations, optimizer
 
 
 class NeuralNet:
@@ -65,18 +65,16 @@ class NeuralNet:
         self.history.append(history)
         #input('...PRESS ANY KEY TO CONTINUE...')
 
-    def save_params(self, i):
+    def save_params(self, path):
         """
         Saves weights and biases of network to file
 
-        :param i: str, grid_size and round the params have been saved 
+        :param path: str, grid_size and round the params have been saved 
 
         https://www.tensorflow.org/tutorials/keras/save_and_load
         """
-        if is_live_demo:
-            i += '_LIVE'
-        self.anet.save_weights('./checkpoints/save_{}'.format(i))
-        print('...parameters for round {} have been saved to file'.format(i))
+        self.anet.save_weights(path)
+        print('...parameters have been saved to {}'.format(path))
 
     def load_params(self, path):
         """

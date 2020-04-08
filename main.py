@@ -16,7 +16,7 @@ if __name__ == '__main__':
         'Test': 'Testspace',
         'M': 'MCTS',
         'T': 'TOPP',
-    }['T']
+    }['M']
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
@@ -47,8 +47,10 @@ if __name__ == '__main__':
         train = False
 
         # Save model before training
-        neural_net.save_params(0)
+        neural_net.save_params(save_path+str(0))
         for j in range(G):
+            start_time = time.time()
+
             env = Environment(grid_size)
             mcts = MCTS(env, neural_net, ane)
             print('...using {}% ANET evaluation'.format(
@@ -61,7 +63,6 @@ if __name__ == '__main__':
             # Player add 1 if player_number is 1 (P1 starts)
             p1_start += player_number + 1 and 1
             while not env.check_game_done(state):
-                print('....begin move')
                 possible_actions = env.get_possible_actions_from_state(state)
                 # Do M simulations
                 best_action, D = mcts.simulate(player_number, M, state)
@@ -78,7 +79,6 @@ if __name__ == '__main__':
                 state = env.generate_child_state_from_action(
                     state, best_action, player_number, verbose)
                 states_in_game.append(state)
-                print('....end move')
                 # Next players turn
                 player_number ^= (p1 ^ p2)
             # Winner was the last player to make a move (one before player_number)
@@ -103,7 +103,6 @@ if __name__ == '__main__':
 
             # Train the neural net
             if train:
-                print('...before train')
                 filled_rows_lenght = rbuf_X[(
                     rbuf_X != np.array(None)).any(axis=1)].shape[0]
                 random_rows = np.random.choice(
@@ -114,12 +113,12 @@ if __name__ == '__main__':
                 neural_net.train_on_rbuf(train_X, train_y, batch_size)
                 # Decay anet_fraction
                 ane *= random_leaf_eval_decay
-                print('...after train')
 
             # j begins at 0, so add 1
             if (j+1) % save_interval == 0:
-                neural_net.save_params(
-                    'grid_size_{}_game_{}'.format(grid_size, (j+1)))
+                neural_net.save_params(save_path+str(j+1))
+
+            print('...time for this game-run: {}'.format(time.time()-start_time))
 
         print('Player 1 wins {} of {} games ({}%).\nPlayer 1 started {}% of the time'.format(
             p1_wins, G, p1_wins/G*100, p1_start/G*100))
