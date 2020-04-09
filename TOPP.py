@@ -72,14 +72,14 @@ class TOPP:
         starting_player = P
         player_names = {1: player_one.anet._name, -1: player_two.anet._name}
         for i in range(num_games):
-            print('*** PLAYOFF BETWEEN {} AS Player 1 AND {} AS Player -1'.format(player_names[1], player_names[-1]))
+            #print('*** PLAYOFF BETWEEN {} AS Player 1 AND {} AS Player -1'.format(player_names[1], player_names[-1]))
             # Play one game
             winner = self.play_one_game(
                 starting_player, player_one, player_two)
             # Update score for the winner
             winner_name = player_names[winner]
             self.scores[winner_name] += 1
-            print('...{} wins game '.format(winner_name, i+1))
+            #print('...{} wins game '.format(winner_name, i+1))
 
             # Alternate between who is starting player in self.play_one_game(starting_player: int, player_one, player_two)
             #starting_player ^= (p1 ^ p2)
@@ -89,15 +89,32 @@ class TOPP:
         for i in range(len(self.players)):
             for j in range(i+1, len(self.players)):
                 self.play_one_serie(self.players[i], self.players[j])
-                print('Scores after this series:\n{}'.format(self.scores))
+                #print('Scores after this series:\n{}'.format(self.scores))
                 num += 1
                 self.play_one_serie(self.players[j], self.players[i])
-                print('Scores after this series:\n{}'.format(self.scores))
+                #print('Scores after this series:\n{}'.format(self.scores))
                 num += 1
 
         print('played {} series of {} games'.format(num, num_games))
-        self.display_results()
 
     def display_results(self):
+        print('Final scores:\n{}'.format(self.scores))
         plt.bar(self.scores.keys(), self.scores.values())
         plt.show()
+
+    def several_tournaments(self, num_tournaments = 9):
+        no_rows = np.ceil(np.sqrt(num_tournaments))
+        no_cols = np.ceil(num_tournaments / no_rows)
+        fig = plt.figure(figsize=(no_rows, no_cols))
+        for t in range(num_tournaments):
+            self.tournament()
+            plt.subplot(no_rows, no_cols, t + 1)
+            plt.bar(self.scores.keys(), self.scores.values())
+            self.reset_scores()
+        plt.show()
+
+    def reset_scores(self):
+        self.scores = {}
+        # Initiate dictionary, no one has won anything yet
+        for nn in self.players:
+            self.scores[nn.anet._name] = 0
