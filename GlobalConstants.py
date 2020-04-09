@@ -22,7 +22,7 @@ num_caches = 9
 # grid size, number of games G, number of simulations M, number of caches
 save_path = './large_run/5_200_5000_10_round_'
 
-load_path = './test/'
+load_path = './large_run/5_200_5000_10_round_'
 
 # Number of games to be played between any two ANET-agents in the TOPP. Should be even for fairness
 num_games = 10

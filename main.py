@@ -16,7 +16,7 @@ if __name__ == '__main__':
         'Test': 'Testspace',
         'M': 'MCTS',
         'T': 'TOPP',
-    }['M']
+    }['T']
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
@@ -130,43 +130,45 @@ if __name__ == '__main__':
         env = Environment(grid_size)
         state = env.generate_initial_state()
         features = np.append(state, P).reshape((1, len(state)+1))
+        agent_numbers = np.linspace(0, G, num_caches, dtype=int)
 
         # NOTE: i: adam, lr = 0.001, 20 epochs
         # NOTE: i*10: adam, lr = 0.001, 50 epochs
         # np.linspace(0, G, num_caches, dtype=int):
-        for i in [0, 70, 140, 210]:
+        for i in [0, 50, 100, 150]:
             print('...fetching agent ', i)
             a = NeuralNet(input_shape)
-            a.load_params(
-                './checkpoints/save_grid_size_{}_game_{}'.format(grid_size, i))
+            a.load_params(load_path+str(i))
             a.anet._name = 'ANET_'+str(i)
             agents.append(a)
 
-            print(a.anet(features))
+        #     print(a.anet(features))
 
-        p2_moves = np.array([1, 4, 5])
-        p1_moves = np.array([2, 3, 6])
-        p2_moves = np.array([2, 6])
-        p1_moves = np.array([4, 7])
+        # p2_moves = np.array([1, 4, 5])
+        # p1_moves = np.array([2, 3, 6])
+        # p2_moves = np.array([2, 6])
+        # p1_moves = np.array([4, 7])
 
-        state[p2_moves] = -1
-        state[p1_moves] = 1
-        # 6 is win for p1
-        state = np.array([0,  1, -1,  1,  1, -1,  0,  1, -1,  1,
-                          1, -1, -1, -1, -1,  1,  1,  1, -1, -1,  1,  0,  1, -1, -1])
-        features = np.append(state, P).reshape((1, len(state)+1))
+        # state[p2_moves] = -1
+        # state[p1_moves] = 1
+        # # 6 is win for p1
+        # state = np.array([0,  1, -1,  1,  1, -1,  0,  1, -1,  1,
+        #                   1, -1, -1, -1, -1,  1,  1,  1, -1, -1,  1,  0,  1, -1, -1])
+        # features = np.append(state, P).reshape((1, len(state)+1))
+        # env.draw_game(state)
+        # plt.show()
 
-        for i in range(1):
-            for a in agents:
-                print('.....', a.anet._name)
-                print(a.anet(features))
-                print(a.default_policy([], state, 1))
-            env.draw_game(state)
-        env.draw_game(state)
-        plt.show()
-
+        # for i in range(1):
+        #     for a in agents:
+        #         print('.....', a.anet._name)
+        #         print(a.anet(features))
+        #         print(a.default_policy([], state, 1))
+        # input()
         topp = TOPP(agents)
-        topp.tournament()
+        topp.several_tournaments()
+
+        #topp.tournament()
+        #topp.display_results()
 
         """
         TODO:
