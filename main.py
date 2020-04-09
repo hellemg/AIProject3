@@ -135,7 +135,7 @@ if __name__ == '__main__':
         # NOTE: i: adam, lr = 0.001, 20 epochs
         # NOTE: i*10: adam, lr = 0.001, 50 epochs
         # np.linspace(0, G, num_caches, dtype=int):
-        for i in [0, 50, 100, 150]:
+        for i in [0, 50, 100, 150, 200]:
             print('...fetching agent ', i)
             a = NeuralNet(input_shape)
             a.load_params(load_path+str(i))
@@ -165,31 +165,22 @@ if __name__ == '__main__':
         #         print(a.default_policy([], state, 1))
         # input()
         topp = TOPP(agents)
-        topp.several_tournaments()
+        topp.tournament()
+        topp.display_results()
+        #topp.several_tournaments()
 
         #topp.tournament()
         #topp.display_results()
 
         """
         TODO:
-        - DONE: Run games project 2-style - requires clean GCs, working env
-        - DONE: Add NN to rollouts (ANET)
-        - DONE: Add target policy update after each actual game (train NN)
-        - Debug why it stops at beginning of round 46 (VSCODE STUFF?)
-        - Make list of architectual choices to try and train the network on
-            - Send as input to NN, not from GC (just when testing this, use GC else)
-            - Save each M trained anets with different names for different architectures
-            - Decide how to measure success
-            - Save success-measurement with each agent
-            - Run small test to ensure it works
-            - Run large test overnight: 5x5 board, 4 ANETS, minimum 200 episodes (Try 1000 simulations)
-            - Log all results
-            - Choose one architecture
-        - Change state in TOPP as done in BCA. Or just play two rounds
-        - Test this code with 3x3
-        - Run larger simulation
-
-        # NOTE:
-        - anets are insecure to begin with (too large search-space to simulate to the end), but get more secure
-            as the game gets closer to an end
+        - Change state in TOPP as done in BCA, so GC can have odd number of games
+        - Do through project description (not OTH)
+        - Go through pivotal parameters
+        - Go through deliverables
+        - Connect to OTH-server and test
+            - Print-test everything you have in BCA
+            - Smartest agent
+            - Stupidest agent
+            - One agent in between
         """
