@@ -20,7 +20,7 @@ M = 5000
 num_caches = 9
 
 # grid size, number of games G, number of simulations M, number of caches
-save_path = './large_run/5_200_5000_10_round_'
+save_path = ''#'./large_run/5_200_5000_10_round_'
 
 load_path = './large_run/5_200_5000_10_round_'
 

@@ -154,7 +154,7 @@ class Board:
                 board_cell = grid[r*self.grid_size + c]
                 G.add_node((r*self.grid_size + c), pos=pos)
                 if board_cell == 0:
-                    node_colors.append('black')
+                    node_colors.append('lightgrey')
                 elif board_cell == 1:
                     # Player 1
                     node_colors.append('lightskyblue')

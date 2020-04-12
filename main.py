@@ -16,6 +16,7 @@ if __name__ == '__main__':
         'Test': 'Testspace',
         'M': 'MCTS',
         'T': 'TOPP',
+        'P': 'Play against',
     }['T']
 
     if Menu == 'Testspace':
@@ -165,16 +166,14 @@ if __name__ == '__main__':
         #         print(a.default_policy([], state, 1))
         # input()
         topp = TOPP(agents)
-        topp.tournament()
-        topp.display_results()
         #topp.several_tournaments()
 
-        #topp.tournament()
-        #topp.display_results()
+        topp.tournament()
+        topp.display_results()
 
         """
         TODO:
-        - Change state in TOPP as done in BCA, so GC can have odd number of games
+        - Change state in TOPP as done in BCA (does this work??), so GC can have odd number of games
         - Do through project description (not OTH)
         - Go through pivotal parameters
         - Go through deliverables
@@ -184,3 +183,49 @@ if __name__ == '__main__':
             - Stupidest agent
             - One agent in between
         """
+
+    elif Menu == 'Play against':
+        print('******* WELCOME TO PLAY AGAINST *******')
+        
+        """
+        starting_player: always 1 
+        human_player: 1 (starting) or -1 (PC starts)
+        display board before humans decides move
+
+        """
+        # Load agent to play against
+        computer_agent = NeuralNet(input_shape)
+        computer_agent.load_params(load_path)
+
+        env = Environment(grid_size)
+        state = env.generate_initial_state()
+        states_in_game = []
+        # 1 always starts
+        current_player = 1
+        # human is 1 or -1
+        human_player = 1
+        while not env.check_game_done(state):
+            if current_player != human_player:
+                # Get possible actions
+                possible_actions = env.get_possible_actions_from_state(
+                    state)
+                # Find best action for current player
+                best_action = computer_agent.best_action(state, current_player)
+            else:
+                env.draw_game(state)
+                plt.show()
+                best_action = int(input('Write a number, followed by pressing enter: '))
+            # Do the action, get next state
+            state = env.generate_child_state_from_action(
+                state, best_action, current_player, False)
+            states_in_game.append(state)
+            # Next players turn
+            current_player ^= (p1 ^ p2)
+        # Winner was the last player to make a move (one before player)
+        winner = current_player ^ (p1 ^ p2)
+        if winner == human_player:
+            print('Human won this game')
+        else:
+            print('Computer won this game')
+        if True:
+            env.visualize(states_in_game, 500)

@@ -27,6 +27,12 @@ class NeuralNet:
         # self.anet.summary()
         # input()
 
+    def best_action(self, state, player):
+        features = np.append(state, player).reshape((1, len(state)+1))
+        action_probabilities = self.anet(features)
+        action_probabilities = self.scale_actions(state, action_probabilities)
+        return np.argmax(action_probabilities)
+
     def default_policy(self, possible_actions, state, player):
         """
         NOTE: predict takes 0.038 seconds, total runtime without assert is 0.038 (predict uses all)
