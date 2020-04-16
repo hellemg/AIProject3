@@ -137,14 +137,13 @@ if __name__ == '__main__':
             agents.append(a)
 
         topp = TOPP(agents)
-        #topp.several_tournaments()
+        topp.several_tournaments()
 
-        topp.tournament()
-        topp.display_results()
+        #topp.tournament()
+        #topp.display_results()
 
         """
         TODO:
-        - Change state in TOPP as done in BCA (does this work??), so GC can have odd number of games
         - Connect to OTH-server and test
             - Print-test everything you have in BCA
             - Smartest agent

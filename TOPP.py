@@ -4,9 +4,6 @@ import matplotlib.pyplot as plt
 from Environment import Environment
 from GlobalConstants import P, p1, p2, num_games, visualize, grid_size
 
-from Board import Board
-
-
 class TOPP:
     def __init__(self, players: []):
         """
@@ -79,7 +76,7 @@ class TOPP:
             env.visualize(states_in_game, 500)
         return winner
 
-    def play_one_serie(self, player_one, player_two):
+    def play_one_serie(self, player_one, player_two, verbose):
         """
         player_one: NeuralNet, P1
         player_two: NeuralNet, P2 (-1)
@@ -88,19 +85,21 @@ class TOPP:
         starting_player = P
         player_names = {1: player_one.anet._name, -1: player_two.anet._name}
         for i in range(num_games):
-            print('*** PLAYOFF BETWEEN {} AS Player 1 AND {} AS Player -1'.format(player_names[1], player_names[-1]))
+            if verbose:
+                print('*** PLAYOFF BETWEEN {} AS Player 1 AND {} AS Player -1'.format(player_names[1], player_names[-1]))
             # Play one game
             winner = self.play_one_game(
                 starting_player, player_one, player_two)
             # Update score for the winner
             winner_name = player_names[winner]
             self.scores[winner_name] += 1
-            print('...{} wins game '.format(winner_name, i+1))
+            if verbose:
+                print('...{} wins game '.format(winner_name, i+1))
 
             # Alternate between who is starting player in self.play_one_game(starting_player: int, player_one, player_two)
             starting_player ^= (p1 ^ p2)
 
-    def tournament(self):
+    def tournament(self, verbose = False):
         """
         Goes through the list of players and ensures they play one series against each other
         P1 is the i-player, P2, is the j-player
@@ -108,7 +107,7 @@ class TOPP:
         num = 0
         for i in range(len(self.players)):
             for j in range(i+1, len(self.players)):
-                self.play_one_serie(self.players[i], self.players[j])
+                self.play_one_serie(self.players[i], self.players[j], verbose)
                 num += 1
 
         print('played {} series of {} games'.format(num, num_games))
