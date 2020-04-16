@@ -24,10 +24,11 @@ class NeuralNet:
         # Compile model
         self.anet.compile(optimizer=optimizer,
                           loss='mean_squared_error', metrics=['accuracy'])
-        # self.anet.summary()
-        # input()
 
     def best_action(self, state, player):
+        """
+        Returns the greedy best action
+        """
         features = np.append(state, player).reshape((1, len(state)+1))
         action_probabilities = self.anet(features)
         action_probabilities = self.scale_actions(state, action_probabilities)
@@ -63,13 +64,13 @@ class NeuralNet:
 
     def train_on_rbuf(self, train_X, train_y, batch_size):
         """
-        rbuf consists of states+players, D (distributions over actions from states)
+        :param train_X: training features, state+player
+        :param train_y: training labels, D (distributions over actions from states)
+        :param batch_size: batch size, int
         """
-        #print('...training on {} samples'.format(train_X.shape[0]))
         history = self.anet.fit(train_X, train_y, epochs=3,
                       verbose=0, batch_size=batch_size)
         self.history.append(history)
-        #input('...PRESS ANY KEY TO CONTINUE...')
 
     def save_params(self, path):
         """
