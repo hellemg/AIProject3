@@ -1,4 +1,3 @@
-from Game import Nim, Ledge
 from Board import Board
 import matplotlib.animation
 import matplotlib.pyplot as plt
@@ -6,22 +5,27 @@ import matplotlib.pyplot as plt
 
 class Environment:
     def __init__(self, grid_size):
-        # Game type: nim or ledge
+        # grid_size: size of Board
         self.game = Board(grid_size)
   
     def generate_initial_state(self):
+        """
+        :returns: initial state of self.game
+        """
         return self.game.get_initial_state()
 
     def generate_child_state_from_action(self, state, action, player, verbose=False):
         """
-        :param state: board, either ndarray (ledge) or int (nim)
+        :param state: board, ndarray
         :param action: tuple with action to do
+
+        :returns: state
         """
         return self.game.get_state_from_state_action(state, action, player, verbose)
 
     def check_game_done(self, state):
         """
-        :param state: board, either ndarray (ledge) or int (nim)
+        :param state: board, ndarray
 
         :returns: boolean, True if the game is done
         """
@@ -29,7 +33,7 @@ class Environment:
 
     def get_possible_actions_from_state(self, state):
         """
-        :param state: board, either ndarray (ledge) or int (nim)
+        :param state: board, ndarray
 
         :returns: list of possible actions
         """
@@ -49,7 +53,11 @@ class Environment:
             ValueError('Invalid player number: {}'.format(player_num))
 
     def draw_game(self, state):
-        # Visualize a single state
+        """
+        Generates a matplotlib figure that can be displayed
+        
+        :param state: board, ndarray
+        """
         self.game.display_board_graph(state)
 
     def visualize(self, states, frame_delay):
