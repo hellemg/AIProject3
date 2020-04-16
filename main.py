@@ -7,7 +7,7 @@ from MCTS import MCTS
 from NeuralNet import NeuralNet
 from utils import test_time
 from TOPP import TOPP
-#from Client_side import BasicClientActor
+from BasicClientActor import BasicClientActor
 
 import matplotlib.pyplot as plt
 
@@ -22,8 +22,8 @@ if __name__ == '__main__':
     if Menu == 'Testspace':
         print('Welcome to testspace')
 
-        # bca = BasicClientActor()
-        # bca.connect_to_server()
+        bca = BasicClientActor()
+        bca.connect_to_server()
 
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
@@ -137,10 +137,10 @@ if __name__ == '__main__':
             agents.append(a)
 
         topp = TOPP(agents)
-        topp.several_tournaments()
+        #topp.several_tournaments()
 
-        #topp.tournament()
-        #topp.display_results()
+        topp.tournament()
+        topp.display_results()
 
         """
         TODO:
