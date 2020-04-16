@@ -128,43 +128,14 @@ if __name__ == '__main__':
         print('******* WELCOME TO THE TOURNAMENT *******')
 
         agents = []
-        env = Environment(grid_size)
-        state = env.generate_initial_state()
-        features = np.append(state, P).reshape((1, len(state)+1))
         agent_numbers = np.linspace(0, G, num_caches, dtype=int)
-
-        # NOTE: i: adam, lr = 0.001, 20 epochs
-        # NOTE: i*10: adam, lr = 0.001, 50 epochs
-        # np.linspace(0, G, num_caches, dtype=int):
-        for i in [0, 50, 100, 150, 200]:
+        for i in agent_numbers:
             print('...fetching agent ', i)
             a = NeuralNet(input_shape)
             a.load_params(load_path+str(i))
             a.anet._name = 'ANET_'+str(i)
             agents.append(a)
 
-        #     print(a.anet(features))
-
-        # p2_moves = np.array([1, 4, 5])
-        # p1_moves = np.array([2, 3, 6])
-        # p2_moves = np.array([2, 6])
-        # p1_moves = np.array([4, 7])
-
-        # state[p2_moves] = -1
-        # state[p1_moves] = 1
-        # # 6 is win for p1
-        # state = np.array([0,  1, -1,  1,  1, -1,  0,  1, -1,  1,
-        #                   1, -1, -1, -1, -1,  1,  1,  1, -1, -1,  1,  0,  1, -1, -1])
-        # features = np.append(state, P).reshape((1, len(state)+1))
-        # env.draw_game(state)
-        # plt.show()
-
-        # for i in range(1):
-        #     for a in agents:
-        #         print('.....', a.anet._name)
-        #         print(a.anet(features))
-        #         print(a.default_policy([], state, 1))
-        # input()
         topp = TOPP(agents)
         #topp.several_tournaments()
 
@@ -174,9 +145,6 @@ if __name__ == '__main__':
         """
         TODO:
         - Change state in TOPP as done in BCA (does this work??), so GC can have odd number of games
-        - Do through project description (not OTH)
-        - Go through pivotal parameters
-        - Go through deliverables
         - Connect to OTH-server and test
             - Print-test everything you have in BCA
             - Smartest agent
@@ -227,5 +195,5 @@ if __name__ == '__main__':
             print('Human won this game')
         else:
             print('Computer won this game')
-        if True:
+        if visualize:
             env.visualize(states_in_game, 500)

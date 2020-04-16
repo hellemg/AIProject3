@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from Environment import Environment
 from GlobalConstants import P, p1, p2, num_games, visualize, grid_size
 
+from Board import Board
+
 
 class TOPP:
     def __init__(self, players: []):
@@ -35,8 +37,8 @@ class TOPP:
     def play_one_game(self, starting_player: int, player_one, player_two):
         """
         starting player: 1 or -1
-        player_one: NeuralNet
-        player_two: NeuralNet
+        player_one: NeuralNet (P1)
+        player_two: NeuralNet (P2, -1)
 
         :returns: int, 1 or -1: winner of the game
         """
@@ -45,15 +47,29 @@ class TOPP:
         states_in_game = []
         current_player = starting_player
         while not env.check_game_done(state):
+            # Fix board
+            my_player = current_player
+            # If the other person starts and I am 1, then I have to invert and flip and become -1
+            if starting_player != current_player and current_player == 1:
+                state = env.flip_state(state)
+                my_player = -1
+            # If I start and I am -1, then I have to invert and flip the board and become 1
+            if starting_player == current_player and current_player == -1:
+                state = env.flip_state(state)
+                my_player = 1
             # Get possible actions
             possible_actions = env.get_possible_actions_from_state(
                 state)
-            # Find best action for current player
-            best_action = {1: player_one.default_policy(possible_actions, state, current_player),
-                           -1: player_two.default_policy(possible_actions, state, current_player)}[current_player]
+            # Find best action for current player, but with state and my_player as features
+            best_action = {1: player_one.default_policy(possible_actions, state, my_player),
+                           -1: player_two.default_policy(possible_actions, state, my_player)}[current_player]
             # Do the action, get next state
             state = env.generate_child_state_from_action(
-                state, best_action, current_player, False)
+                state, best_action, my_player)
+            # Flip the state back if necessary
+            if my_player != current_player:
+                state = env.flip_state(state)
+            # Add the state to list for visualization
             states_in_game.append(state)
             # Next players turn
             current_player ^= (p1 ^ p2)
@@ -65,34 +81,34 @@ class TOPP:
 
     def play_one_serie(self, player_one, player_two):
         """
-        player_one: NeuralNet
-        player_two: NeuralNet
+        player_one: NeuralNet, P1
+        player_two: NeuralNet, P2 (-1)
         """
         # Player that has been trained to start always starts the series
         starting_player = P
         player_names = {1: player_one.anet._name, -1: player_two.anet._name}
         for i in range(num_games):
-            #print('*** PLAYOFF BETWEEN {} AS Player 1 AND {} AS Player -1'.format(player_names[1], player_names[-1]))
+            print('*** PLAYOFF BETWEEN {} AS Player 1 AND {} AS Player -1'.format(player_names[1], player_names[-1]))
             # Play one game
             winner = self.play_one_game(
                 starting_player, player_one, player_two)
             # Update score for the winner
             winner_name = player_names[winner]
             self.scores[winner_name] += 1
-            #print('...{} wins game '.format(winner_name, i+1))
+            print('...{} wins game '.format(winner_name, i+1))
 
             # Alternate between who is starting player in self.play_one_game(starting_player: int, player_one, player_two)
-            #starting_player ^= (p1 ^ p2)
+            starting_player ^= (p1 ^ p2)
 
     def tournament(self):
+        """
+        Goes through the list of players and ensures they play one series against each other
+        P1 is the i-player, P2, is the j-player
+        """
         num = 0
         for i in range(len(self.players)):
             for j in range(i+1, len(self.players)):
                 self.play_one_serie(self.players[i], self.players[j])
-                #print('Scores after this series:\n{}'.format(self.scores))
-                num += 1
-                self.play_one_serie(self.players[j], self.players[i])
-                #print('Scores after this series:\n{}'.format(self.scores))
                 num += 1
 
         print('played {} series of {} games'.format(num, num_games))
