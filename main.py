@@ -17,7 +17,7 @@ if __name__ == '__main__':
         'M': 'MCTS',
         'T': 'TOPP',
         'P': 'Play against',
-    }['T']
+    }[run_key]
 
     if Menu == 'Testspace':
         print('Welcome to testspace')
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         ane = 1
         p1_wins = 0
         p1_start = 0
-        neural_net = NeuralNet(grid_size**2+1)
+        neural_net = NeuralNet(input_shape)
 
         # List of training-data, rbuf_size x features
         rbuf_X = np.empty((1000, input_shape), dtype=np.ndarray)
@@ -84,7 +84,7 @@ if __name__ == '__main__':
                 player_number ^= (p1 ^ p2)
             # Winner was the last player to make a move (one before player_number)
             winner = player_number ^ (p1 ^ p2)
-            print('Player {} wins'.format(winner))
+            #print('Player {} wins'.format(winner))
             if winner == 1:
                 p1_wins += 1
             print('*** Game {} done ***'.format(j+1))
