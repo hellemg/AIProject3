@@ -13,6 +13,15 @@ class Board:
             # for j in range(grid_size):
             self.cell_neighbours[i] = self.get_neighbour_list(i)
 
+    def flip_board(self, board):
+        new_board = self.get_initial_state()
+        for r in range(self.grid_size):
+            for c in range(self.grid_size):
+                ind = r*self.grid_size + c
+                inverse_ind = c*self.grid_size + r
+                new_board[inverse_ind] = board[ind]*(-1)
+        return new_board
+
     def get_initial_state(self):
         # Values of each cell will be 0.
         return np.zeros(self.grid_size*self.grid_size, dtype=int)

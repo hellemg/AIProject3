@@ -7,6 +7,12 @@ class Environment:
     def __init__(self, grid_size):
         # grid_size: size of Board
         self.game = Board(grid_size)
+
+    def flip_state(self, state):
+        """
+        :returns: state where pieces of columns and rows are changed
+        """
+        return self.game.flip_board(state)
   
     def generate_initial_state(self):
         """
