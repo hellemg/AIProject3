@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 
 class Board:
     def __init__(self, grid_size):
-        # FIXED
         self.grid_size = grid_size
         # Array holding edge-representation of grid
         self.cell_neighbours = np.empty(grid_size*grid_size, dtype=list)
@@ -15,12 +14,10 @@ class Board:
             self.cell_neighbours[i] = self.get_neighbour_list(i)
 
     def get_initial_state(self):
-        # FIXED
         # Values of each cell will be 0.
         return np.zeros(self.grid_size*self.grid_size, dtype=int)
 
     def get_possible_actions_from_state(self, grid):
-        # FIXED
         """
         Finds all possible actions from a given state (action = empty boardcell)
         grid: ndarray, grid in some state
@@ -30,7 +27,6 @@ class Board:
         return np.where(grid == 0)[0]
 
     def get_state_from_state_action(self, grid, ind, player, verbose):
-        # FIXED
         """
         grid: ndarray, grid in some state
         row: int, row to place piece on
@@ -46,7 +42,6 @@ class Board:
         return temp_grid
 
     def check_game_done(self, grid):
-        # FIXED
         """
         grid: ndarray, grid in some state
 
@@ -83,8 +78,6 @@ class Board:
         return False
 
     def check_path(self, grid, to_visit, player):
-        # FIXED
-        
         """
         :param grid: ndarray, grid in some state
         :param to_visit: list of ints, coordinates on grid to visit
@@ -113,8 +106,7 @@ class Board:
         # Did not find a path
         return False
 
-    def get_neighbour_list(self, ind):  # row, column):
-        # FIXED
+    def get_neighbour_list(self, ind):
         # Input: ind - index in 1d array holding board
         neighbour_list = [None, None, None, None, None, None]
         row = ind // self.grid_size
@@ -135,13 +127,11 @@ class Board:
         return neighbour_list
 
     def print_board(self, grid):
-        # FIXED
         print('-------------------')
         for i in range(self.grid_size):
             print(grid[i*self.grid_size:i*self.grid_size+self.grid_size])
 
     def display_board_graph(self, grid):
-        # FIXED
         # node network
         G = nx.Graph()
         node_colors = []
@@ -175,50 +165,14 @@ class Board:
                     G.add_edge((i), (n))
         # Plot
         pos = nx.get_node_attributes(G, 'pos')
-
-        # TODO: Fix node size so it works with both grid_size = 3 and grid_size = 10
-
-        nx.draw(G, pos, node_color=node_colors, node_size=3000,
-                with_labels=True, font_weight='bold')
-
-        # TODO: Comment out plt.show() when animating
-
-        # plt.show()
-
-
-# class Board:
-#     def __init__(self, K):
-#         # K as defined in GC
-#         self.K = K
-
-#     def get_initial_state(self):
-#         return 75
-
-#     def get_state_from_state_action(self, total_pieces, num_pieces, player, verbose):
-#         """
-#         :param num_pieces: int, pieces getting picked up
-
-#         :returns: int, pieces left on the board
-#         """
-#         if verbose:
-#             print('Player {} selects {} stones. Remaining stones = {}'.format(
-#                 player, num_pieces, total_pieces-num_pieces))
-#         return total_pieces-num_pieces
-
-#     def check_game_done(self, total_pieces):
-#         """
-#         :param total_pieces: int, pieces on the board
-
-#         returns: boolean, if all pieces have been picked up
-#         """
-#         return total_pieces == 0
-
-#     def get_possible_actions_from_state(self, total_pieces):
-#         """
-#         :param total_pieces: int, pieces on the board
-
-#         :returns: list tuples with possible actions to take
-#         """
-#         # returns list of possible number of pieces to pick up
-#         max_pieces = np.minimum(self.K, total_pieces)+1
-#         return [(i,) for i in range(1, max_pieces)]
+        labels = False
+        if self.grid_size >= 9:
+            node_size = 500
+        elif self.grid_size >= 7:
+            node_size = 1000
+        elif self.grid_size >= 5:
+            node_size = 1500
+        else:
+            node_size = 3000
+            labels = True
+        nx.draw(G, pos, node_color=node_colors, node_size=node_size, with_labels=labels)

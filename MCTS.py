@@ -11,7 +11,6 @@ class MCTS:
         self.sim_env = env
         self.neural_net = neural_net
         self.random_leaf_eval_fraction = random_leaf_eval_fraction
-        # TODO: Add self.evaluate_leaf (=rollout) and self.evaluate_ciritc (NN), so it is generalized and both can be used
 
     def simulate(self, player_number: tuple, M: int, init_state):
         # Create a node from begin-state
@@ -19,9 +18,6 @@ class MCTS:
         node = Node(init_state, parent=None, is_final=False, is_root=True)
         for i in range(M):
             self.p_num = player_number
-            # if i%100 == 0:
-            #     print('--- Simulation {} ---'.format(i+1))
-
             # 1. Follow tree policy to leaf node
             # Note: leaf-node may be a final state, but not necessary
             leaf_node = self.traverse_tree(node)
@@ -124,8 +120,6 @@ class MCTS:
             possible_actions = self.sim_env.get_possible_actions_from_state(
                 state)
             action = self.rollout_evaluation(possible_actions, state, self.p_num)
-            #action = self.NN.default_policy(possible_actions, state, self.p_num, self.epsilon)
-            #action = self.default_policy(possible_actions, state, self.p_num, self.epsilon)
             state = self.sim_env.generate_child_state_from_action(
                 state, action, self.p_num)
             self.p_num = self.p_num ^ (p1 ^ p2)
