@@ -13,10 +13,10 @@ visualize = False
 run_key = 'T'
 
 # Hex game, [3,10]
-grid_size = 4
+grid_size = 5
 
 # Number of games in a batch
-G = 20
+G = 200
 
 # Number of simulations (and therefore rollouts) for each move
 M = 50
@@ -32,7 +32,7 @@ num_games = 10
 # grid size, number of games G, number of simulations M, number of caches
 save_path = './TOPP_test/4_100_50_6_' 
 
-load_path = './TOPP_test/4_100_50_6_' #'./large_run/5_200_5000_10_round_'
+load_path = './run_topp_long/5_200_5000_10_round_' #'./large_run/5_200_5000_10_round_'
 
 ##### ANET PARAMETERS #####
 
