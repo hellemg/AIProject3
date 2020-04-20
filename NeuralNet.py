@@ -31,6 +31,10 @@ class NeuralNet:
         """
         features = np.append(state, player).reshape((1, len(state)+1))
         action_probabilities = self.anet(features)
+        # If there are only zeros
+        if not np.any(action_probabilities):
+            print('......only zeros in predictions, returning random action')
+            return np.random.choice(len(action_probabilities))
         action_probabilities = self.scale_actions(state, action_probabilities)
         return np.argmax(action_probabilities)
 
