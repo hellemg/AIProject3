@@ -30,7 +30,6 @@ class BasicClientActor(BasicClientActorAbs):
         board = np.array(state[1:])
         # Change 2s to -1s
         board = np.where(board == 2, -1, board)
-        print(board.shape)
 
         # Fix board
         my_player = self.series_id
@@ -56,7 +55,6 @@ class BasicClientActor(BasicClientActorAbs):
 
         # Convert index to row and column
         if flip:
-            print('flipped')
             return (best_action_index % BCA_grid_size, best_action_index//BCA_grid_size)
         else:
             return (best_action_index//BCA_grid_size,
@@ -111,9 +109,9 @@ class BasicClientActor(BasicClientActorAbs):
         #
         #
         ##############################
-        print("Game over, these are the stats:")
-        print('Winner: ' + str(winner))
-        print('End state: ' + str(end_state))
+        print("Game over, winner was: {} (you are {}):".format(winner, self.series_id))
+        #print('Winner: ' + str(winner))
+        #print('End state: ' + str(end_state))
 
     def handle_series_over(self, stats):
         """
@@ -170,5 +168,5 @@ if __name__ == '__main__':
     env = Environment(BCA_grid_size)
     agent = NeuralNet(BCA_grid_size**2+1)
 
-    bsa = BasicClientActor(agent, env, verbose=True)
+    bsa = BasicClientActor(agent, env)
     bsa.connect_to_server()
