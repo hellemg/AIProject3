@@ -51,7 +51,8 @@ class BasicClientActor(BasicClientActorAbs):
             flip = True
 
         # Find best action for my player, but with state and my_player as features
-        best_action_index = self.agent.default_policy([], board, my_player)
+        possible_actions = self.env.get_possible_actions_from_state(board)
+        best_action_index = self.agent.default_policy(possible_actions, board, my_player)
 
         # Convert index to row and column
         if flip:

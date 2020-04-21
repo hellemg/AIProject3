@@ -58,8 +58,8 @@ class TOPP:
             possible_actions = env.get_possible_actions_from_state(
                 state)
             # Find best action for current player, but with state and my_player as features
-            best_action = {1: player_one.best_action(state, my_player),
-                           -1: player_two.best_action(state, my_player)}[current_player]
+            best_action = {1: player_one.best_action(possible_actions, state, my_player),
+                           -1: player_two.best_action(possible_actions, state, my_player)}[current_player]
             # Do the action, get next state
             state = env.generate_child_state_from_action(
                 state, best_action, my_player)
