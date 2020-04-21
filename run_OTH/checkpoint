@@ -1,2 +1,2 @@
-model_checkpoint_path: "6_200_300_5_round_150"
-all_model_checkpoint_paths: "6_200_300_5_round_150"
+model_checkpoint_path: "6_200_300_5_round_200"
+all_model_checkpoint_paths: "6_200_300_5_round_200"
