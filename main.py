@@ -177,7 +177,7 @@ if __name__ == '__main__':
                 possible_actions = env.get_possible_actions_from_state(
                     state)
                 # Find best action for current player
-                best_action = computer_agent.best_action(state, current_player)
+                best_action = computer_agent.best_action(possible_actions, state, current_player)
             else:
                 env.draw_game(state)
                 plt.show()

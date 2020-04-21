@@ -13,7 +13,7 @@ visualize = False
 run_key = 'T'
 
 # Hex game, [3,10]
-grid_size = 5
+grid_size = 6
 
 # Number of games in a batch
 G = 200

@@ -25,7 +25,11 @@ class NeuralNet:
         self.anet.compile(optimizer=optimizer,
                           loss='mean_squared_error', metrics=['accuracy'])
 
-    def best_action(self, state, player):
+    def random_possible_action(self, possible_actions):
+        random_index = np.random.randint(len(possible_actions))
+        return possible_actions[random_index]
+
+    def best_action(self, possible_actions, state, player):
         """
         Returns the greedy best action
         """
@@ -34,7 +38,7 @@ class NeuralNet:
         # If there are only zeros
         if not np.any(action_probabilities):
             print('......only zeros in predictions, returning random action')
-            return np.random.choice(len(action_probabilities))
+            return self.random_possible_action(possible_actions)
         action_probabilities = self.scale_actions(state, action_probabilities)
         return np.argmax(action_probabilities)
 
@@ -49,6 +53,10 @@ class NeuralNet:
         """
         features = np.append(state, player).reshape((1, len(state)+1))
         action_probabilities = self.anet(features)
+        # If there are only zeros
+        if not np.any(action_probabilities):
+            print('......only zeros in predictions, returning random action')
+            return self.random_possible_action(possible_actions)
         action_probabilities = self.scale_actions(state, action_probabilities)
         return self.get_action(action_probabilities)
 

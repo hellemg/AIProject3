@@ -1,16 +1,18 @@
 import math
 from BasicClientActorAbs import BasicClientActorAbs
-from NeuralNet import NeuralNet
-from GlobalConstants import grid_size
 from Environment import Environment
+from NeuralNet import NeuralNet
+import numpy as np
+
+from GlobalConstants import grid_size as BCA_grid_size
 
 
 class BasicClientActor(BasicClientActorAbs):
 
-    def __init__(self, agent, environment, IP_address=None, verbose=False):
+    def __init__(self, agent, env, IP_address=None, verbose=False):
         self.series_id = -1
         self.agent = agent
-        self.env = environment
+        self.env = env
         BasicClientActorAbs.__init__(self, IP_address, verbose=verbose)
 
     def handle_get_action(self, state):
@@ -34,25 +36,29 @@ class BasicClientActor(BasicClientActorAbs):
         if my_player == 2:
             my_player = -1
 
+        flip = False
+
         # If the other person starts and I am 1, then I have to invert and flip and become -1
         if self.starting_player != self.series_id and self.series_id == 1:
             board = self.env.flip_state(board)
             my_player = -1
+            flip = True
         # If I start and I am -1, then I have to invert and flip the board and become 1
         if self.starting_player == self.series_id and self.series_id == 2:
             board = env.flip_state(board)
             my_player = 1
-        
+            flip = True
+
         # Find best action for my player, but with state and my_player as features
-        best_action_index = self.agent.default_policy([], board, my_player)
+        possible_actions = self.env.get_possible_actions_from_state(board)
+        best_action_index = self.agent.default_policy(possible_actions, board, my_player)
 
         # Convert index to row and column
-        next_move = (best_action_index//grid_size, best_action_index % grid_size)
-
-        # This is an example player who picks random moves. REMOVE THIS WHEN YOU ADD YOUR OWN CODE !!
-        # next_move = tuple(self.pick_random_free_cell(
-        #     state, size=int(math.sqrt(len(state)-1))))
-        return next_move
+        if flip:
+            return (best_action_index % BCA_grid_size, best_action_index//BCA_grid_size)
+        else:
+            return (best_action_index//BCA_grid_size,
+                    best_action_index % BCA_grid_size)
 
     def handle_series_start(self, unique_id, series_id, player_map, num_games, game_params):
         """
@@ -70,7 +76,6 @@ class BasicClientActor(BasicClientActorAbs):
         #
         #
         # YOUR CODE (if you have anything else) HERE
-        self.grid_size = game_params[0]
         #
         #
         ##############################
@@ -104,9 +109,9 @@ class BasicClientActor(BasicClientActorAbs):
         #
         #
         ##############################
-        print("Game over, these are the stats:")
-        print('Winner: ' + str(winner))
-        print('End state: ' + str(end_state))
+        print("Game over, winner was: {} (you are {}):".format(winner, self.series_id))
+        #print('Winner: ' + str(winner))
+        #print('End state: ' + str(end_state))
 
     def handle_series_over(self, stats):
         """
@@ -160,8 +165,8 @@ class BasicClientActor(BasicClientActorAbs):
 
 
 if __name__ == '__main__':
-    agent = NeuralNet(grid_size**2+1)
-    env = Environment(grid_size)
+    env = Environment(BCA_grid_size)
+    agent = NeuralNet(BCA_grid_size**2+1)
 
-    bsa = BasicClientActor(agent=agent, environment=env)
+    bsa = BasicClientActor(agent, env)
     bsa.connect_to_server()
