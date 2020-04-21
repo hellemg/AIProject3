@@ -1,11 +1,16 @@
 import math
 from BasicClientActorAbs import BasicClientActorAbs
 from NeuralNet import NeuralNet
+from GlobalConstants import grid_size
+from Environment import Environment
+
 
 class BasicClientActor(BasicClientActorAbs):
 
-    def __init__(self, IP_address=None, verbose=False):
+    def __init__(self, agent, environment, IP_address=None, verbose=False):
         self.series_id = -1
+        self.agent = agent
+        self.env = environment
         BasicClientActorAbs.__init__(self, IP_address, verbose=verbose)
 
     def handle_get_action(self, state):
@@ -18,34 +23,35 @@ class BasicClientActor(BasicClientActorAbs):
         then you will see a 2 here throughout the entire series, whereas player 1 will see a 1.
         :return: Your actor's selected action as a tuple (row, column)
         """
-        # # Get the board from the state
-        # board = np.array(state[1:])
-        # # Change 2s to -1s
-        # board = np.where(board == 2, -1, board)
-        # my_player = self.series_id
-        # # If I start and I am 1, then I don't have to change the board
-        # # If the other person starts and I am -1, I dont have to change the board
-        # # If the other person starts and I am 1, then I have to invert tand become -1
-        # if self.starting_player != self.series_id and self.series_id == 1:
-        #     board *= (-1)
-        #     my_player = -1
-        # # If I start and I am -1, then I have to invert the board and become 1
-        # if self.starting_player == self.series_id and self.series_id == -1:
-        #     board *= (-1)
-        #     my_player = 1
+        # Get the board from the state
+        board = np.array(state[1:])
+        # Change 2s to -1s
+        board = np.where(board == 2, -1, board)
 
-        # # Get the best action from my agent
-        # agent = NeuralNet(self.grid_size**2+1)
-        # # 1 always starts, so 
-        # best_action = agent.default_policy(
-        #     possible_actions=[], state=board, player=my_player)
+        # Fix board
+        my_player = self.series_id
+        # Change to -1
+        if my_player == 2:
+            my_player = -1
 
-        # # Convert index to row and column
-        # next_move = (best_action//self.grid_size, ind % self.grid_size)
+        # If the other person starts and I am 1, then I have to invert and flip and become -1
+        if self.starting_player != self.series_id and self.series_id == 1:
+            board = self.env.flip_state(board)
+            my_player = -1
+        # If I start and I am -1, then I have to invert and flip the board and become 1
+        if self.starting_player == self.series_id and self.series_id == 2:
+            board = env.flip_state(board)
+            my_player = 1
+        
+        # Find best action for my player, but with state and my_player as features
+        best_action_index = self.agent.default_policy([], board, my_player)
+
+        # Convert index to row and column
+        next_move = (best_action_index//grid_size, best_action_index % grid_size)
 
         # This is an example player who picks random moves. REMOVE THIS WHEN YOU ADD YOUR OWN CODE !!
-        next_move = tuple(self.pick_random_free_cell(
-            state, size=int(math.sqrt(len(state)-1))))
+        # next_move = tuple(self.pick_random_free_cell(
+        #     state, size=int(math.sqrt(len(state)-1))))
         return next_move
 
     def handle_series_start(self, unique_id, series_id, player_map, num_games, game_params):
@@ -154,5 +160,8 @@ class BasicClientActor(BasicClientActorAbs):
 
 
 if __name__ == '__main__':
-    bsa = BasicClientActor(verbose=True)
+    agent = NeuralNet(grid_size**2+1)
+    env = Environment(grid_size)
+
+    bsa = BasicClientActor(agent=agent, environment=env)
     bsa.connect_to_server()
