@@ -4,8 +4,7 @@ from Environment import Environment
 from NeuralNet import NeuralNet
 import numpy as np
 
-
-BCA_grid_size = 6
+from GlobalConstants import grid_size as BCA_grid_size
 
 
 class BasicClientActor(BasicClientActorAbs):
