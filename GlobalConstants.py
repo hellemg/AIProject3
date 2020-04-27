@@ -16,15 +16,15 @@ run_key = 'T'
 grid_size = 5
 
 # Number of games in a batch
-G = 200
+G = 100
 
 # Number of simulations (and therefore rollouts) for each move
-M = 50
+M = 5000
 
 # Number of ANETs to be cached for a TOPP - starting with an untrained net prior to episode 1
 # NOTE: 1 < num_caches <= G+1
 # NOTE: save_interval = int(np.floor(G/(num_caches-1)))
-num_caches = 5
+num_caches = 11
 
 # Number of games to be played between any two ANET-agents in the TOPP. Should be even for fairness
 num_games = 10
@@ -34,7 +34,7 @@ num_tournaments = 4
 policy = 'best' #'default' #'best'
 
 # grid size, number of games G, number of simulations M, number of caches
-save_path = './TOPP_test/4_100_50_6_' 
+save_path = './rung_long_OTH2/6_100_5000_11_'#'./rung_long_OTH/6_200_5000_21_' 
 
 load_path = './large_run/5_200_5000_10_round_' #'./large_run/5_200_5000_10_round_'
 
