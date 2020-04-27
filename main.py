@@ -136,20 +136,8 @@ if __name__ == '__main__':
             a.anet._name = 'ANET_'+str(i)
             agents.append(a)
 
-        topp = TOPP(agents)
-        #topp.several_tournaments()
-
-        topp.tournament()
-        topp.display_results()
-
-        """
-        TODO:
-        - Connect to OTH-server and test
-            - Print-test everything you have in BCA
-            - Smartest agent
-            - Stupidest agent
-            - One agent in between
-        """
+        topp = TOPP(agents, policy)
+        topp.several_tournaments(num_tournaments)
 
     elif Menu == 'Play against':
         print('******* WELCOME TO PLAY AGAINST *******')

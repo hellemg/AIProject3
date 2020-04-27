@@ -5,7 +5,7 @@ from Environment import Environment
 from GlobalConstants import P, p1, p2, num_games, visualize, grid_size
 
 class TOPP:
-    def __init__(self, players: []):
+    def __init__(self, players: [], policy: str):
         """
         :param players: list of neural_nets
 
@@ -27,6 +27,7 @@ class TOPP:
         # Keep all players
         self.players = players
         self.scores = {}
+        self.policy = policy
         # Initiate dictionary, no one has won anything yet
         for nn in players:
             self.scores[nn.anet._name] = 0
@@ -58,8 +59,14 @@ class TOPP:
             possible_actions = env.get_possible_actions_from_state(
                 state)
             # Find best action for current player, but with state and my_player as features
-            best_action = {1: player_one.best_action(possible_actions, state, my_player),
-                           -1: player_two.best_action(possible_actions, state, my_player)}[current_player]
+            if self.policy == 'default':
+                best_action = {1: player_one.default_policy(possible_actions, state, my_player),
+                            -1: player_two.default_policy(possible_actions, state, my_player)}[current_player]
+            elif self.policy == 'best':
+                best_action = {1: player_one.best_action(possible_actions, state, my_player),
+                            -1: player_two.best_action(possible_actions, state, my_player)}[current_player]
+            else:
+                raise ValueError('Unknown policy in TOPP: {}'.format(self.policy))
             # Do the action, get next state
             state = env.generate_child_state_from_action(
                 state, best_action, my_player)
