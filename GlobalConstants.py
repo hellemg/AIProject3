@@ -13,7 +13,7 @@ visualize = False
 run_key = 'T'
 
 # Hex game, [3,10]
-grid_size = 6
+grid_size = 5
 
 # Number of games in a batch
 G = 200
@@ -28,11 +28,15 @@ num_caches = 5
 
 # Number of games to be played between any two ANET-agents in the TOPP. Should be even for fairness
 num_games = 10
+# Number of turnaments to run (showcases generalization)
+num_tournaments = 4
+# Randomness or greedy action
+policy = 'best' #'default' #'best'
 
 # grid size, number of games G, number of simulations M, number of caches
 save_path = './TOPP_test/4_100_50_6_' 
 
-load_path = './run_topp_long/5_200_5000_10_round_' #'./large_run/5_200_5000_10_round_'
+load_path = './large_run/5_200_5000_10_round_' #'./large_run/5_200_5000_10_round_'
 
 ##### ANET PARAMETERS #####
 
