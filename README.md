@@ -4,3 +4,5 @@
 Results are random. Lr 0.001
 
 './run_OTH_lr_03/6_200_350_5_': lr 0.005, previous was 0.001. Still random
+
+rung_long_OTH/6_200_5000_21_: verification tournament: 74, 84, 80, 86
