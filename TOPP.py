@@ -130,6 +130,7 @@ class TOPP:
         fig = plt.figure(figsize=(no_rows, no_cols))
         for t in range(num_tournaments):
             self.tournament()
+            print('Final scores:\n{}'.format(self.scores))
             plt.subplot(no_rows, no_cols, t + 1)
             plt.bar(self.scores.keys(), self.scores.values())
             self.reset_scores()
