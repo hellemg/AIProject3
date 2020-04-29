@@ -167,7 +167,7 @@ class BasicClientActor(BasicClientActorAbs):
 if __name__ == '__main__':
     env = Environment(BCA_grid_size)
     agent = NeuralNet(BCA_grid_size**2+1)
-    agent.load_params('./rung_long_OTH/6_200_5000_21_200')
+    agent.load_params('./rung_long_OTH2/6_100_5000_11_100')
 
     bsa = BasicClientActor(agent, env)
     bsa.connect_to_server()
