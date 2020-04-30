@@ -13,30 +13,30 @@ visualize = False
 run_key = 'T'
 
 # Hex game, [3,10]
-grid_size = 6
+grid_size = 5
 
 # Number of games in a batch
-G = 100
+G = 200
 
 # Number of simulations (and therefore rollouts) for each move
-M = 5000
+M = 10
 
 # Number of ANETs to be cached for a TOPP - starting with an untrained net prior to episode 1
 # NOTE: 1 < num_caches <= G+1
 # NOTE: save_interval = int(np.floor(G/(num_caches-1)))
-num_caches = 11
+num_caches = 5
 
 # Number of games to be played between any two ANET-agents in the TOPP. Should be even for fairness
-num_games = 20
+num_games = 50
 # Number of turnaments to run (showcases generalization)
 num_tournaments = 1
 # Randomness or greedy action
-policy = 'best' #'default' #'best'
+policy = 'default' #'default' #'best'
 
 # grid size, number of games G, number of simulations M, number of caches
-save_path = ''#'./rung_long_OTH/6_200_5000_21_' 
+save_path = './delete/TOPP_'
 
-load_path = './rung_long_OTH2/6_100_5000_11_' #'./large_run/5_200_5000_10_round_'
+load_path = './large_run/5_200_5000_10_round_'
 
 ##### ANET PARAMETERS #####
 

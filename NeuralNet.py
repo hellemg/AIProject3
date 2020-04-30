@@ -13,8 +13,8 @@ class NeuralNet:
         input_layer = Input(shape=input_shape)
         # Define architecture
         x = input_layer
-        assert len(hidden_layers) == len(
-            activations), 'Different number of hidden layers and activations'
+        #assert len(hidden_layers) == len(
+        #    activations), 'Different number of hidden layers and activations'
         for layer, activation in zip(hidden_layers, activations):
             x = Dense(layer, activation=activation)(x)
         self.anet = Model(input_layer, x)
